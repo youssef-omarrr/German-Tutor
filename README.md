@@ -129,13 +129,14 @@ The system is optimized for 12GB VRAM and will automatically use GPU when availa
 
 ```
 german-tutor/
-├── tutor.py                 # Main German tutor application
-├── simple_tutor.py          # Simplified version with basic features
-├── mic_test.py              # Microphone testing utility
-├── test_updated_tutor.py    # Setup verification script
-├── requirements.txt         # Python dependencies
-├── README.md               # This file
-└── .venv/                  # Virtual environment (created locally)
+├── tests/
+│   ├── gpu_test.py        # Checks if CUDA is available and working
+│   ├── mic_test.py        # Tests microphone input and audio capture
+│   └── test_tutor.py      # Simplified version of the tutor for testing
+├── claude_tutor.py        # Main bilingual German tutor application (real-time)
+├── requirements.txt       # Python dependencies with pinned versions
+└── README.md              # Project overview and usage instructions
+
 ```
 
 ---
