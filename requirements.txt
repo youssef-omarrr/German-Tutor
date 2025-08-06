@@ -1,0 +1,22 @@
+torch>=2.0.0
+torchaudio>=2.0.0
+openai-whisper>=20231117
+openai>=0.28.0
+transformers>=4.35.0
+accelerate>=0.24.0
+pyttsx3>=2.90
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.11
+numpy>=1.24.0
+scipy>=1.11.0
+
+
+# # Install PyTorch with CUDA support
+# pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu126
+
+# # For Windows, you might need:
+# pip install pipwin
+# pipwin install pyaudio
+
+
+# pip install -r requirements.txt
