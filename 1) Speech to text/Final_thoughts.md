@@ -11,4 +11,4 @@
 * **Cons:** Requires manual Porcupine integration and custom spinner code.
 
 ### **Conclusion:**
-Although `RealtimeSTT` simplifies setup, its performance and accuracy don’t meet our needs. For this application, we’ll use `**speech_recognition**` for its superior speed and transcription quality.
+Although `RealtimeSTT` simplifies setup, its performance and accuracy don’t meet our needs. For this application, we’ll use `speech_recognition` for its superior speed and transcription quality.
