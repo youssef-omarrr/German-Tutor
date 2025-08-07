@@ -13,5 +13,5 @@ An AI-powered German language learning assistant that listens to your speech, pr
     
 ## To Do:
 - [x] Mic and speech to text.
-- [ ] Choose suitable LLM.
+- [x] Choose suitable LLM.
 - [ ] Choose suitable TTS.
