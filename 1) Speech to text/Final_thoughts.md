@@ -1,11 +1,11 @@
 # `RealtimeSTT` vs `speech_recognition`
 
-### `**RealtimeSTT**`
+### `RealtimeSTT`
 
 * **Pros:** Built-in hot-word support via Porcupine; integrated console spinners.
 * **Cons:** Slow startup; lower transcription accuracy.
 
-### `**speech_recognition**`
+### `speech_recognition`
 
 * **Pros:** Faster, more accurate speech-to-text.
 * **Cons:** Requires manual Porcupine integration and custom spinner code.
