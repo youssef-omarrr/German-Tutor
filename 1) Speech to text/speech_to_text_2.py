@@ -94,7 +94,11 @@ def listen_real_time():
             # 2) Wake word detected-> record the phrase
             with console.status("[bold blue]Speak now...[/]", spinner="earth"):
                 try:
-                    audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
+                    audio = recognizer.listen(source,
+                                            timeout=5, # the max number of seconds that this will wait for a phrase to start before giving up.
+                                            phrase_time_limit=15 # the max number of seconds that this will allow a phrase to continue before stopping 
+                                                                # and returning the part of the phrase processed before the time limit was reached.
+                                            ) 
                 except Exception as e:
                     console.log(f"[bold red]Error listening:[/] {e}")
                     continue
