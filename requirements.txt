@@ -1,0 +1,10 @@
+speechrecognition
+sounddevice
+pvporcupine
+pyaudio
+openai
+numpy
+torch
+rich
+TTS
+

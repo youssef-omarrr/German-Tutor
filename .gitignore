@@ -7,7 +7,7 @@ __pycache__
 
 quicky.txt
 2) LLM/api.txt
-
+api.txt
 
 # ignore everything in the folder
 3) text to speech/testing_speakers/*
@@ -23,3 +23,5 @@ quicky.txt
 !3) text to speech/testing_speakers/ output_25.wav
 !3) text to speech/testing_speakers/ output_28.wav
 !3) text to speech/testing_speakers/ output_37.wav
+
+output.wav

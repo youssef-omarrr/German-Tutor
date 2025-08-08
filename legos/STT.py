@@ -5,6 +5,7 @@ import pvporcupine
 import pyaudio
 import numpy as np
 import re
+from typing import Tuple, Optional
 
 # ======================================================================== #
 #                            JARVIS SPEECH-TO-TEXT                         #
@@ -12,20 +13,23 @@ import re
 
 class JarvisSTT:
     """
-    A class that activates on a wake word ('Jarvis') and transcribes
-    a single spoken phrase using Google's Speech Recognition API.
+    Wait for 'Jarvis' (Porcupine). Once session started, repeatedly:
+        - listen for 1 user utterance (speech_recognition)
+        - return transcript + whether it matched an end phrase
     """
 
     def __init__(
-        self,
-        language: str = "de-DE",
-        sensitivity: float = 0.8,
-        timeout: float = 5.0,
-        phrase_time_limit: float = 15.0,
-    ):
+            self,
+            language: str = "de-DE",
+            sensitivity: float = 0.8,
+            timeout: float = 5.0,
+            phrase_time_limit: float = 15.0,
+        ):
+        
         """
         Initialize the wake word engine, audio stream, and recognizer.
         """
+        
         # STEP 0: INITIALIZATION
         # --------------------------------
         # Prepare variables, audio devices, and wake word detectors.
@@ -108,6 +112,18 @@ class JarvisSTT:
                     return True
         return False
     
+    # ---------------------------------------------------------------- #
+    def wait_for_session_start(self) -> bool:
+        """
+        Public method: wait for 'Jarvis' and enter session mode.
+        Returns True if session started, False if stop requested.
+        """
+        if self._wait_for_wakeword():
+            self.in_session = True
+            self.console.print("[cyan]Session started![/] Speak freely, say 'Bye Jarvis' to end.")
+            return True
+        return False
+    
     # -------------------------------------------------------------------- #
     
     def _listen_for_speech(self) -> str | None:
@@ -137,49 +153,28 @@ class JarvisSTT:
     
     # -------------------------------------------------------------------- #
 
-    def listen_loop(self):
+    def listen_for_user(self) -> Tuple[Optional[str], bool]:
         """
-        STEP 3: MAIN LOOP
-        Execution order:
-            A) If not in session -> wait for 'jarvis' via Porcupine.
-            B) When 'jarvis' detected -> enter session mode.
-            C) While in session -> capture speech via SpeechRecognition,
-                check transcript for end-phrases (regex); if found -> end session.
-                Otherwise process the transcript (e.g., pass to your tutor/LLM).
-        Rationale: avoid running Porcupine and SpeechRecognition simultaneously on the same mic.
+        Public: listen once for the user's utterance while in-session.
+
+        Returns:
+            (transcript_or_None, is_end_phrase)
+        - transcript_or_None: recognized string or None
+        - is_end_phrase: True if transcript matched an end phrase (session should end)
         """
-        self.console.print("[bold green]Say 'Jarvis' to start a session...[/] (Ctrl+C to exit)")
+        transcript = self._listen_for_speech()
+        if transcript is None:
+            return None, False
 
-        while not self._stop:
-            # A) WAIT FOR START HOTWORD
-            if not self.in_session:
-                if self._wait_for_wakeword():
-                    self.in_session = True
-                    self.console.print("[cyan]Session started![/] Speak freely, say 'Bye Jarvis' to end.")
-                continue
-            
-            # ====================================== #
-            # B) IN-SESSION: listen for actual speech, then decide if it's an end command
-            transcript = self._listen_for_speech()
-            if transcript is None:
-                # Nothing recognized or timed out; keep session active
-                continue
+        # Detect explicit end phrases (case-insensitive, whole phrase match)
+        if self._end_re.search(transcript):
+            # optionally print the detected phrase
+            self.console.print(f"[italic red]End phrase detected in: {transcript}[/]")
+            # mark session as finished
+            self.in_session = False
+            return transcript, True
 
-            self.console.print(f"[bold green]You said:[/] {transcript}")
-            
-            # ====================================== #
-            # C) Check transcript for end phrase (regex match)
-            if self._end_re.search(transcript):
-                self.console.print("[magenta]End phrase detected — session ended. Say 'Jarvis' to start again.[/]")
-                self.in_session = False
-                continue
-            
-            # ====================================== #
-            # D) If not ending, send transcript to your tutor/LLM or handle it
-            # Example: tutor.correct(transcript)
-            # (User's code should call the tutor here)
-            # For now we just print; replace with your integration:
-            # tutor.correct(transcript)
+        return transcript, False
 
     # -------------------------------------------------------------------- #
 
@@ -187,10 +182,19 @@ class JarvisSTT:
         """
         STEP 4: CLEANUP - Release all audio and wake word resources.
         """
-        self._stream.stop_stream()
-        self._stream.close()
-        self.porcupine_jarvis.delete()
-        self._pa.terminate()
+        try:
+            self._stream.stop_stream()
+            self._stream.close()
+        except Exception:
+            pass
+        try:
+            self.porcupine_jarvis.delete()
+        except Exception:
+            pass
+        try:
+            self._pa.terminate()
+        except Exception:
+            pass
 
 # ======================================================================== #
 #                                ENTRY POINT                               #
