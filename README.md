@@ -63,7 +63,7 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 ## Limitations
 
-- There is some delay between speaking and hearing feedback.
+- ~~There is some delay between speaking and hearing feedback.~~
 - The project is not fully professional and may have rough edges.
 
 ---
@@ -126,9 +126,9 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 ## Future Updates / To Do
 
-- [ ] Reduce delay between speaking and feedback.
+- [x] Reduce delay between speaking and feedback.
 - [ ] Add accent recognition to better support different German accents.
-- [ ] Improve UI and error messages.
+- [x] Improve UI and error messages.
 - [ ] Add support for more languages and voices.
 
 ---
