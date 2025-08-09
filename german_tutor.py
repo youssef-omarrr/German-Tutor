@@ -55,7 +55,7 @@ def run_loop(listener, tutor, tts_engine):
                     continue
 
                 # Show recognized text
-                listener.console.print(f"[bold green]You said:[/] {transcript}")
+                listener.console.print(f"\n[bold green]You said:[/] {transcript}")
 
                 # If transcript matched the end phrase, session ends immediately
                 if is_end:
@@ -78,7 +78,8 @@ def run_loop(listener, tutor, tts_engine):
                     # Play audio and print feedback together
                     tts_engine.play(
                         audio,
-                        on_start=lambda: listener.console.print(f"[bold yellow]Tutor says:[/] \n{feedback}")
+                        on_start=lambda: listener.console.print(f"[bold yellow]Tutor says:[/] \n{feedback}"
+                                                                "\n======================================================================")
                     )
                 
             # session ended — loop will go back to waiting for "Jarvis"

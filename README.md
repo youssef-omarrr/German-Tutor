@@ -3,6 +3,12 @@
 **German Tutor** is an AI-powered German language learning assistant that helps users improve their spoken German and grammar. It uses speech recognition, large language models (LLMs), and text-to-speech (TTS) to provide corrections and advice.  
 *Note: This project was created by a college student and is not 100% professional or perfect. There may be some delay between speaking and receiving feedback.*
 
+![alt text](assets/image.png)
+
+> Example on End Phrases:
+
+![alt text](assets/image_1.png)
+
 ---
 
 ## Features
