@@ -17,7 +17,9 @@ We’ve supercharged the German Tutor app with a **response time improvement of 
 * **Faster Text-to-Speech** → Switched to the new `my_TTS_2.py` engine for **quicker audio generation** and **improved pronunciation accuracy**.
 * **Smarter Speech-to-Text** → Replaced the old STT with `SST_2.py`, delivering **more stable sessions** and preventing accuracy drop-offs during long conversations.
 * **Cleaner Console Output** → Improved spacing and formatting for **better readability** during interactions. 
-* **Instant Speech Interrupt** → Added a **Shift + C** shortcut to immediately stop the tutor from speaking mid-response. ![alt text](assets/image_2.png)
+* **Instant Speech Interrupt** → Added a **Shift + C** shortcut to immediately stop the tutor from speaking mid-response. 
+  
+  ![alt text](assets/image_2.png)
 
 These changes mean you get **faster feedback**, **clearer speech**, and a **more fluid tutoring experience**.
 
