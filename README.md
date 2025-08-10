@@ -18,6 +18,7 @@ We’ve supercharged the German Tutor app with a **response time improvement of 
 * **Smarter Speech-to-Text** → Replaced the old STT with `SST_2.py`, delivering **more stable sessions** and preventing accuracy drop-offs during long conversations.
 * **Cleaner Console Output** → Improved spacing and formatting for **better readability** during interactions. 
 * **Instant Speech Interrupt** → Added a **Shift + C** shortcut to immediately stop the tutor from speaking mid-response. 
+* **Imporved responses** → Added more voice responses from Jarvis and wrote a better prompt for a better experince and more human like answers.
   
   ![alt text](assets/image_2.png)
 

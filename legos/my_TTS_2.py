@@ -140,21 +140,23 @@ class TextToSpeech:
 
 if __name__ == "__main__":
     # Example text for TTS
-    sample_text = (
-        "Corrected Sentence: "
-        "Auf Wiedersehen Explanation: "
-        "The phrase Auf Wieder is incomplete; the usual farewell is Auf Wiedersehen, literally until we see each other again. "
-        "German nouns are capitalized, so Wiedersehen starts with a capital W. "
-        "Adding an exclamation mark or a period makes the sentence complete and shows the intended tone. "
-        "Alternative Wordings / Style Improvements: "
-        "Alternative one: Bis später — Use this informal goodbye when you expect to see the person later the same day. "
-        "Alternative two: Tschüss — A casual and friendly way to say 'bye' in everyday conversation. "
-        "Alternative three: Bis bald — Means 'see you soon', suitable when you plan to meet again sometime in the near future. "
-        "Keep up the great work; practicing these common farewells will make your German sound natural."
-    )
+    # sample_text = (
+    #     "Corrected Sentence: "
+    #     "Auf Wiedersehen Explanation: "
+    #     "The phrase Auf Wieder is incomplete; the usual farewell is Auf Wiedersehen, literally until we see each other again. "
+    #     "German nouns are capitalized, so Wiedersehen starts with a capital W. "
+    #     "Adding an exclamation mark or a period makes the sentence complete and shows the intended tone. "
+    #     "Alternative Wordings / Style Improvements: "
+    #     "Alternative one: Bis später — Use this informal goodbye when you expect to see the person later the same day. "
+    #     "Alternative two: Tschüss — A casual and friendly way to say 'bye' in everyday conversation. "
+    #     "Alternative three: Bis bald — Means 'see you soon', suitable when you plan to meet again sometime in the near future. "
+    #     "Keep up the great work; practicing these common farewells will make your German sound natural."
+    # )
+    
+    sample_text = ("Good day sir, call my name whenever you need my assistance")
 
     # Create TTS instance
-    tts_engine = TextToSpeech()
+    tts_engine = TextToSpeech(output_dir= "replies/")
 
     # Generate and play the audio
     tts_engine.synthesize(sample_text)

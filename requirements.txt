@@ -1,10 +1,12 @@
 speechrecognition
-sounddevice
 pvporcupine
+playsound
+rapidfuzz
+edge-tts
 pyaudio
+pygame
 openai
+pynput
 numpy
-torch
 rich
-TTS
 

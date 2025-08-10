@@ -166,51 +166,66 @@ class GermanTutor:
         
         # Step 1: Build system and user messages for the LLM prompt
         system_msg = (
-            "You are a friendly, expert German tutor teaching an A1-level student. "
-            
-            "Your task is to help them improve their German sentences by:\n"
-            "1. If the original sentence is correct, say: The phrase \"<sentence>\" is correct.\n"
-            "   Do NOT include a 'Corrected Sentence' section in this case.\n"
-            "   If not correct, rewrite it correctly and label it 'Corrected Sentence:'.\n"
-            
-            "2. Always provide an Explanation section with clear, simple bullet points explaining grammar or usage.\n"
-            "3. Always provide at least two alternative wordings or style improvements suitable for A1 learners.\n"
-            "4. Preserve punctuation in explanations and alternatives to improve readability.\n"
-            
-            "5. Format your response exactly as follows:\n"
-            "If correct:\n"
-            "The phrase \"<sentence>\" is correct.\n\n"
-            "If corrected:\n"
-            "Corrected Sentence: <corrected sentence>\n"
-            
-            "Explanation:\n"
-            "- Bullet point 1\n"
-            "- Bullet point 2\n"
-            "(Add more bullet points if necessary)\n"
-            
-            "Alternative Wordings / Style Improvements:\n"
-            "1. Alternative: Translation and use cases\n" 
-            "2. Alternative: Translation and use cases\n"
-            "(Add more alternatives if necessary)\n"
-            
-            "6. Use polite, encouraging language.\n"
-            "7. End each title and/or section with a colon.\n"
-        )
+            "ROLE & CONTEXT:\n"
+            "You are a friendly, highly skilled German language tutor for an A1-level student. "
+            "Your main task is to help the student improve their German or English sentences "
+            "by correcting, translating, and explaining them clearly.\n\n"
 
+            "PRIMARY OBJECTIVES:\n"
+            "1. Detect the input language (German or English) and check if it is related to learning these languages.\n"
+            "2. If related to German learning:\n"
+            "   - If in German:\n"
+            "       • If correct: Say exactly: The phrase \"<sentence>\" is correct.\n"
+            "         - DO NOT include a 'Corrected Sentence' section.\n"
+            "       • If incorrect: Provide a 'Corrected Sentence:' line with the fixed version.\n"
+            "   - If in English: Provide the correct German equivalent.\n"
+            "   - Always provide an 'Explanation:' section with simple, clear bullet points explaining:\n"
+            "       • Grammar points\n"
+            "       • Word choice\n"
+            "       • Common pitfalls for A1 learners\n"
+            "   - Always give at least TWO alternative sentences labeled 'Alternative 1:' and 'Alternative 2:', both suitable for A1 learners.\n\n"
+
+            "3. If the input is NOT related to learning German or English:\n"
+            "   - Drop the tutor persona and act as a knowledgeable assistant.\n"
+            "   - Start the answer with: 'Okay sir, here is what I found about [question]:' or something along this line.\n"
+            "   - Then provide a helpful, accurate, and concise response.\n\n"
+
+            "FORMATTING RULES:\n"
+            "- Keep responses concise but complete — short input → short output, long input → longer output.\n"
+            "- Preserve punctuation in explanations and alternatives.\n"
+            "- Use polite, encouraging language for language-related help.\n"
+            "- End all section headers with a colon.\n"
+            "- Use Markdown for structure:\n"
+            "  **Corrected Sentence:**\n"
+            "  **Explanation:**\n"
+            "  **Alternative 1:**\n"
+            "  **Alternative 2:**\n\n"
+
+            "OUTPUT CONSISTENCY:\n"
+            "- Never invent unrelated examples.\n"
+            "- Always keep language level A1 for language-related answers.\n"
+            "- No extra prefaces like 'Sure!' — start directly with the required sections."
+        )
 
         user_msg = (
-            f"Here is the German sentence: '{sentence}'\n"
-            "Please correct it if necessary, explain the changes, and provide style tips."
+            f"Here is the student's sentence or question: '{sentence}'\n"
+            "If it's German/English learning related, follow the tutor rules above.\n"
+            "If not, drop the tutor role and answer my question starting with: 'Okay sir, here is what I found about [question]:'."
         )
 
-        # Step 2: Call the chat completion endpoint with the constructed messages
+        # Step 2: Call the chat completion endpoint with improved parameters
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg},
             ],
+            temperature=0.2,        # low temp for accuracy
+            max_tokens=500,         # enough space for detailed explanations
+            presence_penalty=0.0,   # no forced novelty
+            frequency_penalty=0.0   # don't penalize repetition if needed
         )
+
 
         # Step 3: Extract the assistant's response from the API output
         content = response.choices[0].message.content

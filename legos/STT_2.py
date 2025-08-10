@@ -8,6 +8,8 @@ import re
 from typing import Tuple, Optional
 import time
 from threading import Lock
+from rapidfuzz import fuzz
+
 
 # ======================================================================== #
 #                            JARVIS SPEECH-TO-TEXT                         #
@@ -81,15 +83,19 @@ class JarvisSTT:
         
         # End phrases to check for in the transcript to end the session.
         self.end_phrases = [
-            "bye jarvis",
-            "jarvis stop",
-            "jarvis fuck off",
-            "auf wiedersehen jarvis",
-            "tschüss jarvis",
+            "bye",
+            "stop",
+            "fuck off",
+            "auf wiedersehen",
+            "tschüss",
             "bye bye",
             "goodbye",
-            "tschüss",
-            "close"
+            "close",
+            "okay bye",
+            "that's all, thanks",
+            "we're done",
+            "bye jarvis",
+            "stop jarvis"
         ]
         # Build a regex that matches any end phrase as a whole word/phrase
         # This reduces false positives like "I bought a new computer" (still possible, so prefer specific phrases).
@@ -211,17 +217,23 @@ class JarvisSTT:
         if transcript is None:
             return None, False
 
-        # Detect explicit end phrases (case-insensitive, whole phrase match)
+        # 1) Exact or regex end phrase match
         if self._end_re.search(transcript):
-            # Print the detected phrase
             self.console.print(f"[italic red]\n⚠  End phrase detected in: {transcript}[/]")
-            
-            # Session cleanup on end phrase detection
             with self._session_lock:
                 self.in_session = False
-                # Reset calibration flag for next session
                 self._calibrated = False
             return transcript, True
+
+        # 2) Fuzzy match check for each end phrase
+        for phrase in self.end_phrases:
+            similarity = fuzz.ratio(transcript.lower(), phrase.lower())
+            if similarity >= 85:  # Threshold can be adjusted
+                self.console.print(f"[italic red]\n⚠  Fuzzy end phrase match (({round(similarity, 2)})%): {transcript}[/]")
+                with self._session_lock:
+                    self.in_session = False
+                    self._calibrated = False
+                return transcript, True
 
         return transcript, False
 
