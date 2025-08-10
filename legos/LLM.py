@@ -189,6 +189,7 @@ class GermanTutor:
             "   - Drop the tutor persona and act as a knowledgeable assistant.\n"
             "   - Start the answer with: 'Okay sir, here is what I found about [question]:' or something along this line.\n"
             "   - Then provide a helpful, accurate, and concise response.\n\n"
+            "4. add an encouraging message at the end."
 
             "FORMATTING RULES:\n"
             "- Keep responses concise but complete — short input → short output, long input → longer output.\n"
