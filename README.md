@@ -12,13 +12,13 @@
 ---
 ## **Major Update: `german_tutor_V2.py` Performance Boost** 
 
-We’ve supercharged the German Tutor app with a **response time improvement of up to 90%** thanks to several key upgrades:
+The German Tutor project now responds up to **90% faster** after several key system optimizations and changes:
 
-* **Faster Text-to-Speech** → Switched to the new `my_TTS_2.py` engine for **quicker audio generation** and **improved pronunciation accuracy**.
-* **Smarter Speech-to-Text** → Replaced the old STT with `SST_2.py`, delivering **more stable sessions** and preventing accuracy drop-offs during long conversations.
-* **Cleaner Console Output** → Improved spacing and formatting for **better readability** during interactions. 
-* **Instant Speech Interrupt** → Added a **Shift + C** shortcut to immediately stop the tutor from speaking mid-response. 
-* **Imporved responses** → Added more voice responses from Jarvis and wrote a better prompt for a better experince and more human like answers.
+- **Faster Text-to-Speech**: Switched to the new `my_TTS_2.py` engine for **quicker audio generation** and **improved pronunciation accuracy**.
+- **Smarter Speech-to-Text**: Replaced the old STT with `SST_2.py`, delivering **more stable sessions** and preventing accuracy drop-offs during long conversations.
+- **Cleaner Console Output**: Improved spacing and formatting for **better readability** during interactions. 
+- **Instant Speech Interrupt**: Added a **Shift + C** shortcut to immediately stop the tutor from speaking mid-response. 
+- **Imporved responses**: Added more voice responses from Jarvis and wrote a better prompt for a better experince and more human like answers.
   
   ![alt text](assets/image_2.png)
 
