@@ -89,6 +89,8 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 - `legos/my_TTS_x.py`: Text-to-speech synthesis and playback.
 - `README.md`: Project documentation.
 
+> Version one is found in the `Archived Models/` folder.
+
 ---
 
 ## How It Works
