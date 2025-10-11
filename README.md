@@ -83,13 +83,25 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 ## File Structure
 
-- `german_tutor_Vx.py`: Main entry point and session loop.
-- `legos/STT_x.py`: Wake word and speech recognition logic.
-- `legos/LLM.py`: LLM integration and feedback formatting.
-- `legos/my_TTS_x.py`: Text-to-speech synthesis and playback.
-- `README.md`: Project documentation.
-
-> Version one is found in the `Archived Models/` folder.
+```md
+German-Tutor/
+│
+├── german_tutor_V2.py    # Main entry point and session loop (for version 2)
+│
+├── legos/                # These are the building blocks of the project
+│   ├── STT_2.py              # Wake word and speech recognition logic
+│   ├── LLM.py                # LLM integration and feedback formatting
+│   ├── my_TTS_2.py           # Text-to-speech synthesis and playback
+│   │
+│   └── replies/              # Greeting phrases used by the TTS model
+│       ├── replies.py        # Logic to select random greeting phrases
+│       ├── hello/            # Contains different "hello" phrase variations
+│       └── bye/              # Contains different "goodbye" phrase variations
+│
+├── README.md                 # Project documentation
+│
+└── Archived Models/          # Contains version one (and its own legos folder)
+```
 
 ---
 
@@ -129,6 +141,7 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 ## Future Updates / To Do
 
+- [ ] WORK ON MODEL 3!!
 - [x] Reduce delay between speaking and feedback.
 - [ ] Add accent recognition to better support different German accents.
 - [x] Improve UI and error messages.
