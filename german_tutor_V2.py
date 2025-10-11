@@ -17,7 +17,7 @@ def init_components():
     from legos.STT_2 import JarvisSTT
     from legos.LLM import GermanTutor
     from legos.my_TTS_2 import TextToSpeech
-    from legos.replies import PlaySound
+    from legos.replies.replies import PlaySound
 
     # Create an instance of the speech-to-text listener (JarvisSTT)
     # This object handles detecting the wake word ("Jarvis") and transcribing speech.

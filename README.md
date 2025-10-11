@@ -56,7 +56,7 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 - **Interactive Learning:** Get feedback and corrections as you speak.
 - **Simple Guidance:** LLM provides explanations and alternative wordings.
-- **Hands-Free Flow:** No manual restarts—just speak, listen, and learn.
+- **Hands-Free Flow:** No manual restart:just speak, listen, and learn.
 - **Multi-Voice Support:** Switch speaker voices for varied practice.
 - **Extensible:** Modular Python codebase for future improvements.
 
@@ -83,21 +83,21 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 ## File Structure
 
-- `german_tutor.py` — Main entry point and session loop.
-- `legos/STT.py` — Wake word and speech recognition logic.
-- `legos/LLM.py` — LLM integration and feedback formatting.
-- `legos/my_TTS.py` — Text-to-speech synthesis and playback.
-- `README.md` — Project documentation.
+- `german_tutor_Vx.py`: Main entry point and session loop.
+- `legos/STT_x.py`: Wake word and speech recognition logic.
+- `legos/LLM.py`: LLM integration and feedback formatting.
+- `legos/my_TTS_x.py`: Text-to-speech synthesis and playback.
+- `README.md`: Project documentation.
 
 ---
 
 ## How It Works
 
 1. **Say “Jarvis”** to start a session.
-2. **Speak a German sentence**—the system transcribes and sends it to the LLM.
+2. **Speak a German sentence*:the system transcribes and sends it to the LLM.
 3. **LLM returns feedback**: corrections, explanations, and alternatives.
 4. **TTS reads feedback aloud** (playback blocks until finished).
-5. **Assistant listens again** automatically—no need to repeat "Jarvis".
+5. **Assistant listens again** automaticall:no need to repeat "Jarvis".
 6. **Say an end phrase** (e.g., “bye jarvis”, “tschüss jarvis”) to close the session.
 7. **Repeat** as desired for continuous practice.
 
@@ -105,7 +105,7 @@ These changes mean you get **faster feedback**, **clearer speech**, and a **more
 
 ## Why German Tutor Stands Out
 
-- **Hands-Free Experience:** Speak and listen—no typing or manual resets.
+- **Hands-Free Experience:** Speak and liste:no typing or manual resets.
 - **AI Guidance:** Combines speech, language, and voice technologies.
 - **Encouraging Feedback:** Polite, supportive, and beginner-friendly.
 - **Open Source:** Easy to customize and extend.
@@ -140,5 +140,3 @@ MIT License.
 See [LICENSE](LICENSE) for details.
 
 ---
-
-**German Tutor — Speak, Learn, Improve.**
