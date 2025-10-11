@@ -1,28 +1,29 @@
 folderico-approved.ico
 desktop.ini
 
+.gitignore
+
 .venv
 __pycache__
 
 
 quicky.txt
-2) LLM/api.txt
 api.txt
 
-# ignore everything in the folder
-3) text to speech/testing_speakers/*
+*.wav
 
 # un-ignore the specific files we want to keep tracked
-!3) text to speech/testing_speakers/ output_0.wav
-!3) text to speech/testing_speakers/ output_1.wav
-!3) text to speech/testing_speakers/ output_3.wav
-!3) text to speech/testing_speakers/ output_13.wav
-!3) text to speech/testing_speakers/ output_14.wav
-!3) text to speech/testing_speakers/ output_17.wav
-!3) text to speech/testing_speakers/ output_24.wav
-!3) text to speech/testing_speakers/ output_25.wav
-!3) text to speech/testing_speakers/ output_28.wav
-!3) text to speech/testing_speakers/ output_37.wav
+!testing_speakers/
+!testing_speakers/output_0.wav
+!testing_speakers/output_1.wav
+!testing_speakers/output_3.wav
+!testing_speakers/output_13.wav
+!testing_speakers/output_14.wav
+!testing_speakers/output_17.wav
+!testing_speakers/output_24.wav
+!testing_speakers/output_25.wav
+!testing_speakers/output_28.wav
+!testing_speakers/output_37.wav
 
 output.wav
 output_audio/
