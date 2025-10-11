@@ -10,7 +10,7 @@
 ![alt text](assets/image_3.png)
 
 ---
-## **Major Update – `german_tutor_V2.py` Performance Boost** 
+## **Major Update: `german_tutor_V2.py` Performance Boost** 
 
 We’ve supercharged the German Tutor app with a **response time improvement of up to 90%** thanks to several key upgrades:
 
