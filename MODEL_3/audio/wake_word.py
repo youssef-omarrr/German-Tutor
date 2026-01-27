@@ -10,12 +10,17 @@ from rich.console import Console
 import time
 import signal
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 class WakeWordDetector:
     """
     Listens for wake word ('Jarvis') using Porcupine.
     """
     def __init__(self,
-                keyword: str = "jatvis",
+                keyword: str = "jarvis",
                 sensitivity: float = 0.9):
         """
         Initialize Porcupine wake word detector.
@@ -31,6 +36,7 @@ class WakeWordDetector:
         # init porcupine
         self.keyword = keyword
         self.porcupine = pvporcupine.create(
+            access_key = os.getenv("porcupine_access_key"),
             keywords = [keyword],
             sensitivities = [sensitivity],
         )
@@ -42,12 +48,9 @@ class WakeWordDetector:
             rate = self.porcupine.sample_rate,
             channels = 1,
             format = pyaudio.paInt16,
+            input = True,
             frames_per_buffer = self.porcupine.frame_length,
         )
-        
-        # For Ctrl+C stopping
-        self.stop = False
-        signal.signal(signal.SIGINT, self._handle_sigint)
         
     # ---------------------------------------------------------------- #
     def wait_for_wake_word(self):
@@ -61,10 +64,10 @@ class WakeWordDetector:
             f"[bold cyan]Waiting for '{self.keyword}'...[/]", 
             spinner="moon"
         ):
-            while not self.stop:
-                try:
+            try:
+                while True:
                     # Read audio frame
-                    pcm_bytes = self._stream.read(
+                    pcm_bytes = self.stream.read(
                         self.porcupine.frame_length,
                         exception_on_overflow=False
                     )
@@ -77,27 +80,19 @@ class WakeWordDetector:
                     if result >= 0:
                         self.console.print(f"[green]✓ '{self.keyword}' detected![/]")
                         return True
-                        
-                except Exception as e:
-                    # Handle audio errors gracefully
-                    time.sleep(0.05)
-                    continue
-                    
-        return False
-    
-    # ---------------------------------------------------------------- #
-    def _handle_sigint(self, sig, frame):
-        """
-        Signal handler to safely stop the loop on Ctrl+C.
-        """
-        self._stop = True
+            
+            # NOTE: WILL BE REMOVED AND ADDED TO audio_io.py
+            # For Ctrl+C stopping
+            except KeyboardInterrupt: 
+                self.console.print("[red]Exiting...[/]")
+                return False
 
     # ---------------------------------------------------------------- #
     def cleanup(self):
         """Release resources."""
         try:
-            self._stream.stop_stream()
-            self._stream.close()
+            self.stream.stop_stream()
+            self.stream.close()
         except:
             pass
         
@@ -123,7 +118,5 @@ if __name__ == "__main__":
             if detector.wait_for_wake_word():
                 print("Wake word detected! Starting session...")
                 time.sleep(2)  # Simulate session
-    except KeyboardInterrupt:
-        print("\nExiting...")
     finally:
         detector.cleanup()
