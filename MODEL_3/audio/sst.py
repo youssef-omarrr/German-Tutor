@@ -1,7 +1,159 @@
+"""
+Speech-to-Text using Faster-Whisper
+Transcribes real-time audio from microphone (not files)
+"""
+
 from faster_whisper import WhisperModel
+import numpy as np
+from typing import Optional, Tuple
+from rich.console import Console
+from .audio_io import AudioRecorder
 
-model = WhisperModel("large-v3")
 
-segments, info = model.transcribe("audio.mp3")
-for segment in segments:
-    print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+class FasterWhisperSTT:
+    """
+    Real-time speech-to-text using Faster-Whisper.
+    Records from microphone and transcribes.
+    """
+    
+    def __init__(
+        self,
+        model_size: str = "large-v3",
+        device: str = "cuda",  # "cuda" or "cpu"
+        compute_type: str = "float16",  # "float16" (GPU) or "int8" (CPU)
+        language: str = "de",  # German
+        beam_size: int = 5,
+        vad_filter: bool = True,  # Voice activity detection
+    ):
+        """
+        Initialize Faster-Whisper model.
+        
+        Args:
+            model_size: Model size (tiny, base, small, medium, large-v3)
+                       - tiny: Fastest, least accurate
+                       - large-v3: Slowest, most accurate
+            device: "cuda" for GPU or "cpu"
+            compute_type: "float16" (GPU), "int8" (CPU) for speed
+            language: Target language code (de=German, en=English)
+            beam_size: Beam search width (higher = better but slower)
+            vad_filter: Use voice activity detection to filter silence
+        """
+        self.console = Console()
+        self.language = language
+        self.beam_size = beam_size
+        self.vad_filter = vad_filter
+        
+        # Load Faster-Whisper model
+        self.console.print(f"[yellow]Loading Faster-Whisper {model_size}...[/]")
+        try:
+            self.model = WhisperModel(
+                model_size,
+                device=device,
+                compute_type=compute_type,
+                download_root=None,  # Use default cache
+            )
+            self.console.print("[green]✓ Model loaded successfully[/]")
+        except Exception as e:
+            self.console.print(f"[red]Failed to load model: {e}[/]")
+            raise
+        
+        # Initialize audio recorder
+        self.recorder = AudioRecorder(
+            sample_rate=16000,  # Whisper requires 16kHz
+            energy_threshold=200,
+            pause_duration=1.0,
+            max_duration=10.0,
+        )
+    
+    def transcribe(self, audio: np.ndarray) -> Optional[str]:
+        """
+        Transcribe audio array to text.
+        
+        Args:
+            audio: NumPy array of audio samples (float32, 16kHz)
+            
+        Returns:
+            Transcribed text or None if transcription failed
+        """
+        try:
+            # Transcribe with Faster-Whisper
+            segments, info = self.model.transcribe(
+                audio,
+                language=self.language,
+                beam_size=self.beam_size,
+                vad_filter=self.vad_filter,
+                vad_parameters=dict(
+                    min_silence_duration_ms=500,  # Minimum silence to split
+                    threshold=0.5,  # Voice activity threshold
+                ),
+            )
+            
+            # Combine all segments into single transcript
+            transcript = " ".join(segment.text for segment in segments).strip()
+            
+            # Log language detection info
+            detected_lang = info.language
+            lang_probability = info.language_probability
+            
+            if detected_lang != self.language and lang_probability > 0.5:
+                self.console.print(
+                    f"[yellow]⚠ Detected {detected_lang} "
+                    f"(expected {self.language}, confidence: {lang_probability:.2f})[/]"
+                )
+            
+            return transcript if transcript else None
+            
+        except Exception as e:
+            self.console.print(f"[red]Transcription error: {e}[/]")
+            return None
+    
+    def listen_and_transcribe(self) -> Optional[str]:
+        """
+        Record from microphone and transcribe in one step.
+        
+        Returns:
+            Transcribed text or None if no speech or error
+        """
+        # Record audio
+        audio = self.recorder.record()
+        
+        if audio is None:
+            return None
+        
+        # Transcribe
+        with self.console.status("[bold magenta]Transcribing...[/]", spinner="dots"):
+            return self.transcribe(audio)
+    
+    def cleanup(self):
+        """Release resources."""
+        self.recorder.cleanup()
+
+
+# ======================================================================== #
+#                              TESTING                                     #
+# ======================================================================== #
+
+if __name__ == "__main__":
+    # Test with small model for speed
+    stt = FasterWhisperSTT(
+        model_size="base",  # Use base for testing (faster)
+        device="cpu",  # Change to "cuda" if you have GPU
+        compute_type="int8",  # Use int8 for CPU
+        language="de"
+    )
+    
+    try:
+        print("\n=== Testing Faster-Whisper STT ===")
+        print("Speak in German...")
+        
+        transcript = stt.listen_and_transcribe()
+        
+        if transcript:
+            print(f"\n✓ You said: {transcript}")
+        else:
+            print("\n✗ No speech detected")
+            
+    except KeyboardInterrupt:
+        print("\nInterrupted by user")
+    finally:
+        stt.cleanup()
