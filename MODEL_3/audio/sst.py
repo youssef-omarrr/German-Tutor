@@ -7,7 +7,7 @@ from faster_whisper import WhisperModel
 import numpy as np
 from typing import Optional, Tuple
 from rich.console import Console
-from .audio_io import AudioRecorder
+from audio_io import AudioRecorder
 
 
 class FasterWhisperSTT:
@@ -21,7 +21,7 @@ class FasterWhisperSTT:
         model_size: str = "large-v3",
         device: str = "cuda",  # "cuda" or "cpu"
         compute_type: str = "float16",  # "float16" (GPU) or "int8" (CPU)
-        language: str = "de",  # German
+        language: str = "de",  # German, None -> for auto language detection mode
         beam_size: int = 5,
         vad_filter: bool = True,  # Voice activity detection
     ):
@@ -34,7 +34,7 @@ class FasterWhisperSTT:
                        - large-v3: Slowest, most accurate
             device: "cuda" for GPU or "cpu"
             compute_type: "float16" (GPU), "int8" (CPU) for speed
-            language: Target language code (de=German, en=English)
+            language: Target language code (de=German, en=English, None -> for auto language detection mode)
             beam_size: Beam search width (higher = better but slower)
             vad_filter: Use voice activity detection to filter silence
         """
@@ -61,7 +61,7 @@ class FasterWhisperSTT:
         self.recorder = AudioRecorder(
             sample_rate=16000,  # Whisper requires 16kHz
             energy_threshold=200,
-            pause_duration=1.0,
+            pause_duration=0.5, # <-- this controls how long it waits after silence
             max_duration=10.0,
         )
     
@@ -79,11 +79,11 @@ class FasterWhisperSTT:
             # Transcribe with Faster-Whisper
             segments, info = self.model.transcribe(
                 audio,
-                language=self.language,
+                language=self.language, # or 'None' to allow auto language detection
                 beam_size=self.beam_size,
                 vad_filter=self.vad_filter,
                 vad_parameters=dict(
-                    min_silence_duration_ms=500,  # Minimum silence to split
+                    min_silence_duration_ms=200,  # Minimum silence to split
                     threshold=0.5,  # Voice activity threshold
                 ),
             )
@@ -91,6 +91,8 @@ class FasterWhisperSTT:
             # Combine all segments into single transcript
             transcript = " ".join(segment.text for segment in segments).strip()
             
+            # if auto language detection is on
+            # -----------------------------------
             # Log language detection info
             detected_lang = info.language
             lang_probability = info.language_probability
@@ -136,8 +138,8 @@ class FasterWhisperSTT:
 if __name__ == "__main__":
     # Test with small model for speed
     stt = FasterWhisperSTT(
-        model_size="base",  # Use base for testing (faster)
-        device="cpu",  # Change to "cuda" if you have GPU
+        # model_size="base",  # Use base for testing (faster)
+        device="cpu",  # Change to "cuda" if you have cuad 12 (won't work on cuda 13+)
         compute_type="int8",  # Use int8 for CPU
         language="de"
     )
