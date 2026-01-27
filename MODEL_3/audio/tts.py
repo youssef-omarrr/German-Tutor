@@ -85,7 +85,7 @@ class EdgeTTS:
         """
         return asyncio.run(self._synthesize(text))
     
-    async def speak(self, text: str):
+    def speak(self, text: str):
         """
         Synthesize and play audio immediately.
         
@@ -97,7 +97,7 @@ class EdgeTTS:
         
         with self.console.status("[bold green]🔊 Speaking...[/]", spinner="material"):
             # Synthesize audio
-            audio_data = await self.synthesize(text)
+            audio_data = self.synthesize(text)
             
             if audio_data is None:
                 self.console.print("[red]Failed to synthesize audio[/]")
@@ -158,7 +158,13 @@ if __name__ == "__main__":
     test_text = "Hallo! Ich bin dein Deutsch-Tutor. Wie kann ich dir heute helfen?"
     
     print(f"Speaking: {test_text}")
-    asyncio.run(tts.speak(test_text))
+    tts.speak(test_text)
     
-    # # Test list voices
-    # EdgeTTS._list_voices()
+    test_text = "This time I am speaking in English"
+    
+    print(f"Speaking: {test_text}")
+    tts.speak(test_text)
+    
+    
+    # # list all voices
+    # EdgeTTS.list_voices()
