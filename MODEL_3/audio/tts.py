@@ -23,7 +23,7 @@ class EdgeTTS:
         self,
         voice: str = "de-DE-KatjaNeural",  # German female voice
         rate: str = "+0%",  # Speaking rate
-        pitch: str = "+0Hz",  # Pitch adjustment
+        pitch: str = "+7Hz",  # Pitch adjustment
     ):
         """
         Initialize Edge TTS.
@@ -119,7 +119,6 @@ class EdgeTTS:
             except Exception as e:
                 self.console.print(f"[red]Playback error: {e}[/]")
     
-    @staticmethod
     def _list_voices():
         """
         List all available voices (async).
@@ -155,15 +154,30 @@ if __name__ == "__main__":
     print("\n=== Testing Edge TTS ===")
     
     # Test sentence
-    test_text = "Hallo! Ich bin dein Deutsch-Tutor. Wie kann ich dir heute helfen?"
     
+    # Test 1
+    # -------
+    # test_text = "I am testing english and german, Ich bin dein Deutsch-Tutor. Wie kann ich dir heute helfen?"
+    # print(f"Speaking: {test_text}")
+    # tts.speak(test_text)
+    
+    # Test 2
+    # -------
+    test_text = "Guten Morgen! I wanted to check if you finished the report. Hoffentlich geht alles gut bei dir."
     print(f"Speaking: {test_text}")
     tts.speak(test_text)
     
-    test_text = "This time I am speaking in English"
+    # Test 3
+    # -------
+    # test_text = "Hallo! Ich bin dein Deutsch-Tutor. Wie kann ich dir heute helfen?"
+    # print(f"Speaking: {test_text}")
+    # tts.speak(test_text)
     
-    print(f"Speaking: {test_text}")
-    tts.speak(test_text)
+    # Test 4
+    # -------
+    # test_text = "This time I am speaking in English"
+    # print(f"Speaking: {test_text}")
+    # tts.speak(test_text)
     
     
     # # list all voices
