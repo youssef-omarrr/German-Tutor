@@ -7,6 +7,19 @@ It uses speech recognition, large language models (LLMs), and text-to-speech (TT
 
 ---
 
+## Examples
+### 1. Speaking German
+![alt text](imgs/WindowsTerminal_NAeRMmp7tx.png)
+
+### 2. Asking a question in **German**
+![alt text](imgs/WindowsTerminal_7se1GpjcKm.png)
+
+### 3. Asking a question in **English**
+![alt text](imgs/WindowsTerminal_kpwIo2Sma7.png)
+
+### 4. Session termination (with end phrase)
+![alt text](imgs/WindowsTerminal_USzrJiQZuK.png)
+
 ## **Latest Model: `German Tutor V3`**
 
 The German Tutor can now work with any language and answer any question, including non-language-learning related questions.
@@ -75,7 +88,7 @@ To change any option, including language, modify the `config.yaml` file.
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                LLM PROCESSING WITH RAG CONTEXT              │
-│  Model*: llama-3.3-70b-versatile                             │
+│  Model*: llama-3.3-70b-versatile                            │
 │  Input:                                                     │
 │    - User: "Ich habe gestern ins Kino gegangen"             │
 │    - Retrieved web context (grammar, knowledge, guidance)   │
