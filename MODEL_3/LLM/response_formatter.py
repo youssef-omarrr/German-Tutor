@@ -105,32 +105,30 @@ class SimpleFormatter:
         self.console.print()
         return _remove_md(response_text)
 
-
 def _remove_md(text: str):
-    """Return cleaned text wrapped in SSML for EdgeTTS."""
-
-    clean = text
-    clean = re.sub(r"^#+\s*", "", clean, flags=re.MULTILINE)
-    clean = re.sub(r"(\*\*|__)(.*?)\1", r"\2", clean)
-    clean = re.sub(r"(\*|_)(.*?)\1", r"\2", clean)
-    clean = re.sub(r"`([^`]*)`", r"\1", clean)
-    clean = re.sub(r"^>\s*", "", clean, flags=re.MULTILINE)
-    clean = clean.replace("-", " ")
-    clean = clean.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
-    clean = clean.replace("/", " slash ").replace("&", " and ")
-
-    # keep letters, numbers, basic punctuation
-    clean = re.sub(r"[^a-zA-Z0-9äöüÄÖÜß\s,.'\":!?]", "", clean)
+    """Simple markdown removal for natural speech."""
+    
+    # Remove all markdown formatting
+    clean = re.sub(r"#+\s+", "", text)  # Headings
+    clean = re.sub(r"[*_`]{1,2}(.*?)[*_`]{1,2}", r"\1", clean)  # Bold/italic/code
+    clean = re.sub(r"^>\s+", "", clean, flags=re.MULTILINE)  # Blockquotes
+    clean = re.sub(r"\[(.*?)\]\(.*?\)", r"\1", clean)  # Links
+    clean = re.sub(r"!\[.*?\]\(.*?\)", "", clean)  # Images
+    clean = re.sub(r"```.*?```", "", clean, flags=re.DOTALL)  # Code blocks
+    
+    # Replace symbols
+    clean = clean.replace("/", " slash ")
+    clean = clean.replace("&", " and ")
+    clean = clean.replace("#", " ")
+    
+    # Normalize whitespace
     clean = re.sub(r"\s+", " ", clean).strip()
-
-    # add natural breaks for TTS
-    clean = re.sub(r"\. ", ". <break time='400ms'/> ", clean)
-    clean = re.sub(r", ", ", <break time='200ms'/> ", clean)
-    clean = re.sub(r"! ", "! <break time='500ms'/> ", clean)
-    clean = re.sub(r"\? ", "? <break time='500ms'/> ", clean)
-
-    # wrap in <speak> for SSML
-    return f"<speak>{clean}</speak>"
+    
+    # Add natural pauses by adding extra space after punctuation
+    clean = re.sub(r"([.!?;])\s+", r"\1  ", clean)
+    clean = re.sub(r",\s+", r", ", clean)
+    
+    return clean
 
 
 # ========================================================================
