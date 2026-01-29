@@ -44,6 +44,7 @@ LLM:
   #  - llama-3.3-70b-versatile (Best for German)
   #  - llama-3.1-8b-instant (Faster, less accurate)
   #  - mixtral-8x7b-32768 (Good alternative)
+  #  - openai/gpt-oss-120b
   use_simple_format: False
 
 RAG:
