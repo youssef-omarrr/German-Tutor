@@ -1,12 +1,12 @@
 audio:
-  wake_word: "Jarvis"
+  wake_word: "jarvis"
   sensitivity: 0.9
   voice: "de-DE-KatjaNeural"  
   # German voices:
-    - "de-DE-KatjaNeural" (female)
-    - "de-DE-ConradNeural" (male)
-    - "de-AT-IngridNeural" (Austrian female)
-    - "de-CH-LeniNeural" (Swiss female)
+  #  - "de-DE-KatjaNeural" (female)
+  #  - "de-DE-ConradNeural" (male)
+  #  - "de-AT-IngridNeural" (Austrian female)
+  #  - "de-CH-LeniNeural" (Swiss female)
   rate: "+0%"  # Speaking rate
   pitch: "+7Hz" # Pitch adjustment 
 
@@ -21,9 +21,9 @@ faster_whisper:
 LLM:
   model: "llama-3.3-70b-versatile"
   # other options for model:
-    - llama-3.3-70b-versatile (Best for German)
-    - llama-3.1-8b-instant (Faster, less accurate)
-    - mixtral-8x7b-32768 (Good alternative)
+  #  - llama-3.3-70b-versatile (Best for German)
+  #  - llama-3.1-8b-instant (Faster, less accurate)
+  #  - mixtral-8x7b-32768 (Good alternative)
   use_simple_format: False
 
 RAG:

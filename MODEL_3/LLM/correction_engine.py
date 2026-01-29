@@ -1,8 +1,8 @@
 from groq import Groq
 from dotenv import load_dotenv
 import os
-from prompt_templates import create_prompt_template
-from response_formatter import ResponseFormatter, SimpleFormatter
+from .prompt_templates import create_prompt_template
+from .response_formatter import ResponseFormatter, SimpleFormatter
 
 # load .env file t0 get access keys
 load_dotenv()

@@ -7,8 +7,8 @@ from faster_whisper import WhisperModel
 import numpy as np
 from typing import Optional, Tuple
 from rich.console import Console
-from audio_io import AudioRecorder
-from end_phrase import EndPhrases
+from .audio_io import AudioRecorder
+from .end_phrase import EndPhrases
 
 
 class FasterWhisperSTT:
@@ -19,7 +19,7 @@ class FasterWhisperSTT:
     
     def __init__(
         self,
-        wake_word: str = "Jarvis",
+        wake_word: str = "jarvis",
         model_size: str = "large-v3",
         device: str = "cuda",  # "cuda" or "cpu"
         compute_type: str = "float16",  # "float16" (GPU) or "int8" (CPU)

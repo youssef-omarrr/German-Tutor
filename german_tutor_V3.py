@@ -1,11 +1,11 @@
-from MODEL_3.audio import *
-from MODEL_3.LLM import *
+from MODEL_3.audio import stt, wake_word,tts
+from MODEL_3.LLM import correction_engine
 from MODEL_3.RAG import *
 
 import yaml
 from pathlib import Path
 
-CONFIG_PATH = Path("MODEL_3/config.yaml")
+CONFIG_PATH = Path("MODEL_3\config.yaml")
 
 def load_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
@@ -24,11 +24,10 @@ detector = wake_word.WakeWordDetector(
 try:
     while True:
         if detector.wait_for_wake_word():
-            print("Wake word detected! Starting session...")
             
             # 2. sst
             # -------
-            my_sst = sst.FasterWhisperSTT(
+            my_srt = srt.FasterWhisperSTT(
                 model_size = config["faster_whisper"]["model_size"],
                 device = config["faster_whisper"]["device"],
                 compute_type = config["faster_whisper"]["compute_type"],
@@ -39,7 +38,7 @@ try:
             
             try:                
                 while True:
-                    transcript = my_sst.listen_and_transcribe()
+                    transcript = my_srt.listen_and_transcribe()
                     
                     if transcript:
                         if transcript == "__END_SESSION__":
@@ -55,7 +54,7 @@ try:
                             model= config["LLM"]["model"]
                         )
                         response = model.response(
-                            test_inputs[0],
+                            transcript,
                             model= config["LLM"]["use_simple_format"]
                             )
                         
@@ -73,7 +72,7 @@ try:
             except KeyboardInterrupt:
                 print("\nInterrupted by user")
             finally:
-                stt.cleanup()
+                my_stt.cleanup()
 finally:
     detector.cleanup()
 
