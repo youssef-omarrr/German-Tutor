@@ -8,6 +8,7 @@ import numpy as np
 from typing import Optional, Tuple
 from rich.console import Console
 from audio_io import AudioRecorder
+from end_phrase import EndPhrases
 
 
 class FasterWhisperSTT:
@@ -64,6 +65,10 @@ class FasterWhisperSTT:
             pause_duration=0.5, # <-- this controls how long it waits after silence
             max_duration=10.0,
         )
+        
+        # Define END PHRASES
+        self.end_phrases = EndPhrases()
+        
     
     def transcribe(self, audio: np.ndarray) -> Optional[str]:
         """
@@ -91,6 +96,9 @@ class FasterWhisperSTT:
             # Combine all segments into single transcript
             transcript = " ".join(segment.text for segment in segments).strip()
             
+            if not transcript:
+                return None
+            
             # if auto language detection is on
             # -----------------------------------
             # Log language detection info
@@ -102,8 +110,15 @@ class FasterWhisperSTT:
                     f"[yellow]⚠ Detected {detected_lang} "
                     f"(expected {self.language}, confidence: {lang_probability:.2f})[/]"
                 )
+            # -----------------------------------------------------------------------------
             
-            return transcript if transcript else None
+            # Detect end phrase match
+            if self.end_phrases.search(transcript):
+                self.console.print(f"[italic red]\n⚠  End phrase detected in: {transcript}[/]")
+                self.cleanup()
+                return "__END_SESSION__"
+            
+            return transcript
             
         except Exception as e:
             self.console.print(f"[red]Transcription error: {e}[/]")
@@ -124,7 +139,12 @@ class FasterWhisperSTT:
         
         # Transcribe
         with self.console.status("[bold magenta]Transcribing...[/]", spinner="dots"):
-            return self.transcribe(audio)
+            result = self.transcribe(audio)
+            
+            if result == "__END_SESSION__":
+                return "__END_SESSION__"  # signal caller to exit loop
+            
+            return result
     
     def cleanup(self):
         """Release resources."""
@@ -148,12 +168,18 @@ if __name__ == "__main__":
         print("\n=== Testing Faster-Whisper STT ===")
         print("Speak in German...")
         
-        transcript = stt.listen_and_transcribe()
-        
-        if transcript:
-            print(f"\n✓ You said: {transcript}")
-        else:
-            print("\n✗ No speech detected")
+        while True:
+            transcript = stt.listen_and_transcribe()
+            
+            if transcript:
+                if transcript == "__END_SESSION__":
+                    print("\nSession ended")
+                    break
+                
+                print(f"\n✓ You said: {transcript}")
+                
+            else:
+                print("\n✗ No speech detected")
             
     except KeyboardInterrupt:
         print("\nInterrupted by user")

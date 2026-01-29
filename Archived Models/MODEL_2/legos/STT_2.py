@@ -85,7 +85,6 @@ class JarvisSTT:
         self.end_phrases = [
             "bye",
             "stop",
-            "fuck off",
             "auf wiedersehen",
             "tschüss",
             "bye bye",
