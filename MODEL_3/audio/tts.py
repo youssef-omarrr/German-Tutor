@@ -30,11 +30,11 @@ class EdgeTTS:
         
         Args:
             voice: Voice ID to use
-                   German voices:
-                   - "de-DE-KatjaNeural" (female)
-                   - "de-DE-ConradNeural" (male)
-                   - "de-AT-IngridNeural" (Austrian female)
-                   - "de-CH-LeniNeural" (Swiss female)
+                German voices:
+                - "de-DE-KatjaNeural" (female)
+                - "de-DE-ConradNeural" (male)
+                - "de-AT-IngridNeural" (Austrian female)
+                - "de-CH-LeniNeural" (Swiss female)
             rate: Speaking rate adjustment (e.g., "+10%" faster, "-10%" slower)
             pitch: Pitch adjustment (e.g., "+5Hz" higher, "-5Hz" lower)
         """

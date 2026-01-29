@@ -1,7 +1,7 @@
 import re
 
 # Define END PHRASES (session termination commands)
-def EndPhrases():
+def EndPhrases(wake_word):
     end_phrases = [
         # English
         "bye",
@@ -19,11 +19,7 @@ def EndPhrases():
         "that's all",
         "that's all, thanks",
         "we're done",
-        "bye jarvis",
-        "stop jarvis",
-        "close jarvis",
-        "exit jarvis",
-
+        
         # German
         "tschüss",
         "tschuess",
@@ -33,7 +29,13 @@ def EndPhrases():
         "mach's gut",
         "machts gut",
         "beenden",
-        "tschüss jarvis",
+        
+        # Wake word specific
+        f"bye {wake_word}",
+        f"stop {wake_word}",
+        f"close {wake_word}",
+        f"exit {wake_word}",
+        f"tschüss {wake_word}",
     ]
 
     # Join phrases into a single alternation pattern, escaping them to avoid regex issues

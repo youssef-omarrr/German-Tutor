@@ -1,0 +1,29 @@
+audio:
+  wake_word: "Jarvis"
+  sensitivity: 0.9
+  voice: "de-DE-KatjaNeural"  
+  # German voices:
+    - "de-DE-KatjaNeural" (female)
+    - "de-DE-ConradNeural" (male)
+    - "de-AT-IngridNeural" (Austrian female)
+    - "de-CH-LeniNeural" (Swiss female)
+  rate: "+0%"  # Speaking rate
+  pitch: "+7Hz" # Pitch adjustment 
+
+faster_whisper:
+  model_size: "base" # "base" or "large-v3"
+  device: "cpu"  # "cuda" or "cpu"
+  compute_type: "int8" # "float16" (GPU) or "int8" (CPU)
+  language: "de"  # "de" -> German, None -> for auto language detection mode
+  beam_size: 5
+  vad_filter: True  # Voice activity detection
+
+LLM:
+  model: "llama-3.3-70b-versatile"
+  # other options for model:
+    - llama-3.3-70b-versatile (Best for German)
+    - llama-3.1-8b-instant (Faster, less accurate)
+    - mixtral-8x7b-32768 (Good alternative)
+  use_simple_format: False
+
+RAG:

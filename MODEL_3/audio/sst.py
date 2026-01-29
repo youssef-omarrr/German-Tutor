@@ -19,6 +19,7 @@ class FasterWhisperSTT:
     
     def __init__(
         self,
+        wake_word: str = "Jarvis",
         model_size: str = "large-v3",
         device: str = "cuda",  # "cuda" or "cpu"
         compute_type: str = "float16",  # "float16" (GPU) or "int8" (CPU)
@@ -30,9 +31,14 @@ class FasterWhisperSTT:
         Initialize Faster-Whisper model.
         
         Args:
+            wake_word:  wake word used by Porcupine, other options:
+                        - "Terminator"
+                        - "hey_siri"
+                        - "Computer"
+                        - "Porcupine"
             model_size: Model size (tiny, base, small, medium, large-v3)
-                       - tiny: Fastest, least accurate
-                       - large-v3: Slowest, most accurate
+                        - tiny: Fastest, least accurate
+                        - large-v3: Slowest, most accurate
             device: "cuda" for GPU or "cpu"
             compute_type: "float16" (GPU), "int8" (CPU) for speed
             language: Target language code (de=German, en=English, None -> for auto language detection mode)
@@ -67,7 +73,7 @@ class FasterWhisperSTT:
         )
         
         # Define END PHRASES
-        self.end_phrases = EndPhrases()
+        self.end_phrases = EndPhrases(wake_word=wake_word)
         
     
     def transcribe(self, audio: np.ndarray) -> Optional[str]:
