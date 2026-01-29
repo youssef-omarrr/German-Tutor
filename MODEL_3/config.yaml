@@ -2,16 +2,36 @@ audio:
   wake_word: "jarvis"
   sensitivity: 0.9
   voice: "de-DE-KatjaNeural"  
-  # German voices:
-  #  - "de-DE-KatjaNeural" (female)
-  #  - "de-DE-ConradNeural" (male)
-  #  - "de-AT-IngridNeural" (Austrian female)
-  #  - "de-CH-LeniNeural" (Swiss female)
+  # German voices
+  #  - "de-DE-KatjaNeural" (female, Germany)
+  #  - "de-DE-ConradNeural" (male, Germany)
+  #  - "de-AT-IngridNeural" (female, Austria)
+  #  - "de-CH-LeniNeural" (female, Switzerland)
+
+  # English voices
+  #  - "en-US-JennyNeural" (female, US)
+  #  - "en-US-GuyNeural" (male, US)
+  #  - "en-GB-LibbyNeural" (female, UK)
+  #  - "en-GB-RyanNeural" (male, UK)
+  #  - "en-AU-NatashaNeural" (female, Australia)
+  #  - "en-AU-WilliamNeural" (male, Australia)
+
+  # French voices
+  #  - "fr-FR-DeniseNeural" (female, France)
+  #  - "fr-FR-HenriNeural" (male, France)
+  #  - "fr-CA-SylvieNeural" (female, Canadian French)
+
+  # Spanish voices
+  #  - "es-ES-ElviraNeural" (female, Spain)
+  #  - "es-ES-AlvaroNeural" (male, Spain)
+  #  - "es-MX-DaliaNeural" (female, Mexico)
+  #  - "es-MX-JorgeNeural" (male, Mexico)
   rate: "+10%"  # Speaking rate
   pitch: "+7Hz" # Pitch adjustment 
 
 faster_whisper:
-  model_size: "base" # "base" or "large-v3"
+  model_size: "base"
+  # "tiny", "base", "small", "medium" or "large-v3"
   device: "cpu"  # "cuda" or "cpu"
   compute_type: "int8" # "float16" (GPU) or "int8" (CPU)
   language: "de"  # "de" -> German, None -> for auto language detection mode

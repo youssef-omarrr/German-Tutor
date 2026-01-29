@@ -9,8 +9,6 @@ from typing import Optional
 from rich.console import Console
 import tempfile
 import os
-from pydub import AudioSegment
-from pydub.playback import play
 import subprocess
 
 
@@ -71,17 +69,83 @@ class EdgeTTS:
 
     def speak(self, text: str):
         """
-        Synthesize and play audio immediately using direct streaming.
+        Synthesize and play audio immediately.
+        Tries direct streaming with mpv first, falls back to temp file method.
         """
         if not text:
             return
         
         with self.console.status("[bold green]🔊 Speaking...[/]", spinner="material"):
+            # First try direct streaming with mpv
             try:
                 asyncio.run(self._stream_speak(text))
+                return  # Success, exit function
+            except Exception as e:
+                self.console.print(f"[yellow]Streaming failed: {e}. Falling back to temp file method...[/]")
+            
+            # Fallback: use temp file method
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+                    tmp.write(audio_data)
+                    tmp_path = tmp.name
+                
+                # Play audio
+                audio = AudioSegment.from_mp3(tmp_path)
+                play(audio)
+                
+                # Cleanup
+                os.unlink(tmp_path)
             except Exception as e:
                 self.console.print(f"[red]Playback error: {e}[/]")
     
+    # ======================================== #
+    #    [OPTIONAL] PLAY FROM TEMP FILE        #
+    # ======================================== #
+    async def _synthesize(self, text: str) -> Optional[bytes]:
+        """
+        Synthesize text to audio bytes (async).
+        
+        Args:
+            text: Text to synthesize
+            
+        Returns:
+            Audio data as bytes (MP3 format)
+        """
+        try:
+            communicate = edge_tts.Communicate(
+                text=text,
+                voice=self.voice,
+                rate=self.rate,
+                pitch=self.pitch
+            )
+            
+            # Collect audio chunks
+            audio_data = b""
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    audio_data += chunk["data"]
+            
+            return audio_data if audio_data else None
+            
+        except Exception as e:
+            self.console.print(f"[red]TTS synthesis error: {e}[/]")
+            return None
+    
+    def synthesize(self, text: str) -> Optional[bytes]:
+        """
+        Synthesize text to audio (synchronous wrapper).
+        
+        Args:
+            text: Text to synthesize
+            
+        Returns:
+            Audio data as bytes (MP3 format)
+        """
+        return asyncio.run(self._synthesize(text))
+    
+    # ======================================== #
+    #    [OPTIONAL] VOICES LISTING FUNCTION    #
+    # ======================================== #
     def _list_voices():
         """
         List all available voices (async).
