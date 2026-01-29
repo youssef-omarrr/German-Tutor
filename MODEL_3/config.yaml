@@ -7,7 +7,7 @@ audio:
   #  - "de-DE-ConradNeural" (male)
   #  - "de-AT-IngridNeural" (Austrian female)
   #  - "de-CH-LeniNeural" (Swiss female)
-  rate: "+0%"  # Speaking rate
+  rate: "+10%"  # Speaking rate
   pitch: "+7Hz" # Pitch adjustment 
 
 faster_whisper:

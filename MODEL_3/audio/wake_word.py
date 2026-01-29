@@ -83,7 +83,7 @@ class WakeWordDetector:
                     # Check for wake word
                     result = self.porcupine.process(pcm)
                     if result >= 0:
-                        self.console.print(f"[green]✓ '{self.keyword}' detected![/], Starting session...")
+                        self.console.print(f"[green]✓ '{self.keyword}' detected!, Starting session...[/]")
                         return True
             
             # NOTE: WILL BE REMOVED AND ADDED TO audio_io.py
