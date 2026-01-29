@@ -2,7 +2,7 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 from prompt_templates import create_prompt_template
-from response_formatter import ResponseFormatter
+from response_formatter import ResponseFormatter, SimpleFormatter
 
 # load .env file t0 get access keys
 load_dotenv()
@@ -21,17 +21,39 @@ class GermanTutor:
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         
     def response(self,
-                prompt):
+                prompt: str,
+                use_simple_format: bool = False):
         
-        response = self.client.chat.completions.create(
+        """
+        Get LLM response and print it formatted.
+        
+        Args:
+            prompt: User's input text
+            use_simple_format: If True, use minimal formatting
+        
+        Returns:
+            The raw LLM response text
+        """
+
+        # init formatter
+        formatter = SimpleFormatter() if use_simple_format else ResponseFormatter()
+        
+        # Show thinking indicator
+        with formatter.console.status("[bold magenta]🤔 Thinking...[/bold magenta]", spinner="dots"):
+            # Get LLM response
+            response = self.client.chat.completions.create(
             model= self.model,
             messages=create_prompt_template(prompt),
             temperature = 0.9,
             max_tokens = 500
         )
         
+        # Extract response text
         response = response.choices[0].message.content
-        print(response)
+        
+        # Format and print
+        formatter.format_and_print(response, user_input=prompt)
+        
         return response
     
 

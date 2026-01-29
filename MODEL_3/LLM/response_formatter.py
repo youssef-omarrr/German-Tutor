@@ -49,7 +49,7 @@ class ResponseFormatter:
                 md,
                 title="[bold green]🎓 Tutor Response[/bold green]",
                 border_style="green",
-                box=box.ROUNDED,
+                box=box.DOUBLE,
                 padding=(1, 2)
             ))
         else:
@@ -58,7 +58,7 @@ class ResponseFormatter:
                 response_text,
                 title="[bold green]🎓 Tutor Response[/bold green]",
                 border_style="green",
-                box=box.ROUNDED,
+                box=box.DOUBLE,
                 padding=(1, 2)
             ))
         

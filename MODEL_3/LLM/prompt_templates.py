@@ -131,7 +131,11 @@ See? Same correction, completely different style each time.
     - Match the complexity of the input
     - Short input → concise response
     - Complex input → detailed response
-    - Don't over-explain simple things"""
+    - Don't over-explain simple things
+    
+ALWAYS RETURN RESPONSE IN MRKDOWN FORMAT!"""
+    
+    
 
     # ========================================= #
     # =======     2. USER MESSAGE       ======= #
@@ -143,7 +147,8 @@ Remember:
 - If this is about learning a language → be a tutor (explain in English)
 - If this is a general question → just answer it naturally
 - Vary your response style - don't use templates
-- Be conversational and natural"""
+- Be conversational and natural
+- ALWAYS RETURN RESPONSE IN MRKDOWN FORMAT!"""
 
 
     return [
