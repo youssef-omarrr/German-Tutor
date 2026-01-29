@@ -13,6 +13,7 @@ import signal
 from dotenv import load_dotenv
 import os
 
+# load .env file tp get access keys
 load_dotenv()
 
 class WakeWordDetector:
@@ -36,7 +37,7 @@ class WakeWordDetector:
         # init porcupine
         self.keyword = keyword
         self.porcupine = pvporcupine.create(
-            access_key = os.getenv("porcupine_access_key"),
+            access_key = os.getenv("PORCUPINE_ACCESS_KEY"),
             keywords = [keyword],
             sensitivities = [sensitivity],
         )
