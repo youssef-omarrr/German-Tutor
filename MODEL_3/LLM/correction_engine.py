@@ -52,9 +52,9 @@ class GermanTutor:
         response = response.choices[0].message.content
         
         # Format and print
-        formatter.format_and_print(response, user_input=prompt)
+        clean_response = formatter.format_and_print(response, user_input=prompt)
         
-        return response
+        return clean_response
     
 
 # ======================================================================== #

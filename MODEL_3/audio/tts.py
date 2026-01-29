@@ -11,6 +11,7 @@ import tempfile
 import os
 from pydub import AudioSegment
 from pydub.playback import play
+import subprocess
 
 
 class EdgeTTS:
@@ -43,79 +44,41 @@ class EdgeTTS:
         self.pitch = pitch
         self.console = Console()
     
-    async def _synthesize(self, text: str) -> Optional[bytes]:
+    async def _stream_speak(self, text: str):
         """
-        Synthesize text to audio bytes (async).
-        
-        Args:
-            text: Text to synthesize
-            
-        Returns:
-            Audio data as bytes (MP3 format)
+        Streams audio directly to mpv without saving a file.
         """
+        communicate = edge_tts.Communicate(
+            text=text,
+            voice=self.voice,
+            rate=self.rate,
+            pitch=self.pitch
+        )
+
+        # Open mpv process to receive audio data via stdin
+        # '--no-cache' and '--untied-lirc-interface' help with instant playback
+        mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "-"]
+        process = subprocess.Popen(mpv_command, stdin=subprocess.PIPE)
+
         try:
-            communicate = edge_tts.Communicate(
-                text=text,
-                voice=self.voice,
-                rate=self.rate,
-                pitch=self.pitch
-            )
-            
-            # Collect audio chunks
-            audio_data = b""
             async for chunk in communicate.stream():
                 if chunk["type"] == "audio":
-                    audio_data += chunk["data"]
-            
-            return audio_data if audio_data else None
-            
-        except Exception as e:
-            self.console.print(f"[red]TTS synthesis error: {e}[/]")
-            return None
-    
-    def synthesize(self, text: str) -> Optional[bytes]:
-        """
-        Synthesize text to audio (synchronous wrapper).
-        
-        Args:
-            text: Text to synthesize
-            
-        Returns:
-            Audio data as bytes (MP3 format)
-        """
-        return asyncio.run(self._synthesize(text))
-    
+                    process.stdin.write(chunk["data"])
+        finally:
+            if process.stdin:
+                process.stdin.close()
+            process.wait()
+
     def speak(self, text: str):
         """
-        Synthesize and play audio immediately.
-        
-        Args:
-            text: Text to speak
+        Synthesize and play audio immediately using direct streaming.
         """
         if not text:
             return
         
         with self.console.status("[bold green]🔊 Speaking...[/]", spinner="material"):
-            # Synthesize audio
-            audio_data = self.synthesize(text)
-            
-            if audio_data is None:
-                self.console.print("[red]Failed to synthesize audio[/]")
-                return
-            
-            # Save to temporary file and play
             try:
-                with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
-                    tmp.write(audio_data)
-                    tmp_path = tmp.name
-                
-                # Play audio
-                audio = AudioSegment.from_mp3(tmp_path)
-                play(audio)
-                
-                # Cleanup
-                os.unlink(tmp_path)
-                
+                asyncio.run(self._stream_speak(text))
             except Exception as e:
                 self.console.print(f"[red]Playback error: {e}[/]")
     

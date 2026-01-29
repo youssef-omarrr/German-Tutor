@@ -63,6 +63,7 @@ class ResponseFormatter:
             ))
         
         self.console.print()
+        return _remove_md(response_text)
     
     def _has_markdown(self, text: str) -> bool:
         """Check if text contains markdown formatting."""
@@ -75,118 +76,8 @@ class ResponseFormatter:
         ]
         return any(re.search(pattern, text, re.MULTILINE) for pattern in markdown_patterns)
     
-    def print_correction(self, original: str, corrected: str, explanation: str):
-        """
-        Print a correction in a structured format.
         
-        Args:
-            original: User's original text
-            corrected: Corrected version
-            explanation: Why it was corrected
-        """
-        self.console.print()
-        
-        # Original sentence
-        self.console.print(Panel(
-            f"[red]{original}[/red]",
-            title="[bold red]❌ Original[/bold red]",
-            border_style="red",
-            box=box.SIMPLE
-        ))
-        
-        # Corrected sentence
-        self.console.print(Panel(
-            f"[green]{corrected}[/green]",
-            title="[bold green]✅ Corrected[/bold green]",
-            border_style="green",
-            box=box.SIMPLE
-        ))
-        
-        # Explanation
-        self.console.print(Panel(
-            Markdown(explanation),
-            title="[bold blue]💡 Explanation[/bold blue]",
-            border_style="blue",
-            box=box.ROUNDED
-        ))
-        
-        self.console.print()
-    
-    def print_translation(self, original: str, translated: str, notes: str = None):
-        """
-        Print a translation in a structured format.
-        
-        Args:
-            original: Original text
-            translated: Translated text
-            notes: Optional notes/explanation
-        """
-        self.console.print()
-        
-        self.console.print(Panel(
-            f"[cyan]{original}[/cyan]\n\n[yellow]→[/yellow]\n\n[green]{translated}[/green]",
-            title="[bold]🌐 Translation[/bold]",
-            border_style="magenta",
-            box=box.DOUBLE
-        ))
-        
-        if notes:
-            self.console.print(Panel(
-                notes,
-                title="[bold blue]📝 Notes[/bold blue]",
-                border_style="blue",
-                box=box.ROUNDED
-            ))
-        
-        self.console.print()
-    
-    def print_general_answer(self, question: str, answer: str):
-        """
-        Print a general Q&A response.
-        
-        Args:
-            question: User's question
-            answer: LLM's answer
-        """
-        self.console.print()
-        
-        # Question
-        self.console.print(Panel(
-            f"[cyan]{question}[/cyan]",
-            title="[bold]❓ Question[/bold]",
-            border_style="cyan",
-            box=box.ROUNDED
-        ))
-        
-        # Answer
-        self.console.print(Panel(
-            Markdown(answer),
-            title="[bold green]💬 Answer[/bold green]",
-            border_style="green",
-            box=box.ROUNDED,
-            padding=(1, 2)
-        ))
-        
-        self.console.print()
-    
-    def print_error(self, error_message: str):
-        """Print an error message."""
-        self.console.print()
-        self.console.print(Panel(
-            f"[red]{error_message}[/red]",
-            title="[bold red]⚠️  Error[/bold red]",
-            border_style="red",
-            box=box.HEAVY
-        ))
-        self.console.print()
-    
-    def print_thinking(self):
-        """Show a thinking indicator."""
-        return self.console.status(
-            "[bold magenta]🤔 Thinking...[/bold magenta]",
-            spinner="dots"
-        )
-
+    import re
 
 class SimpleFormatter:
     """
@@ -212,6 +103,34 @@ class SimpleFormatter:
             self.console.print(response_text)
         
         self.console.print()
+        return _remove_md(response_text)
+
+
+def _remove_md(text: str):
+    """Return cleaned text wrapped in SSML for EdgeTTS."""
+
+    clean = text
+    clean = re.sub(r"^#+\s*", "", clean, flags=re.MULTILINE)
+    clean = re.sub(r"(\*\*|__)(.*?)\1", r"\2", clean)
+    clean = re.sub(r"(\*|_)(.*?)\1", r"\2", clean)
+    clean = re.sub(r"`([^`]*)`", r"\1", clean)
+    clean = re.sub(r"^>\s*", "", clean, flags=re.MULTILINE)
+    clean = clean.replace("-", " ")
+    clean = clean.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
+    clean = clean.replace("/", " slash ").replace("&", " and ")
+
+    # keep letters, numbers, basic punctuation
+    clean = re.sub(r"[^a-zA-Z0-9äöüÄÖÜß\s,.'\":!?]", "", clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+
+    # add natural breaks for TTS
+    clean = re.sub(r"\. ", ". <break time='400ms'/> ", clean)
+    clean = re.sub(r", ", ", <break time='200ms'/> ", clean)
+    clean = re.sub(r"! ", "! <break time='500ms'/> ", clean)
+    clean = re.sub(r"\? ", "? <break time='500ms'/> ", clean)
+
+    # wrap in <speak> for SSML
+    return f"<speak>{clean}</speak>"
 
 
 # ========================================================================
@@ -243,30 +162,9 @@ Keep it up! 🎯"""
         user_input="Ich habe ins Kino gegangen"
     )
     
-    # Example 2: Translation
+    # Example 2: Simple formatter
     print("\n" + "="*70)
-    print("EXAMPLE 2: Translation")
-    print("="*70)
-    
-    formatter.print_translation(
-        original="How do you say 'I love you' in German?",
-        translated="Ich liebe dich",
-        notes="Use 'Ich hab dich lieb' for friends/family (less intense)"
-    )
-    
-    # Example 3: General question
-    print("\n" + "="*70)
-    print("EXAMPLE 3: General Question")
-    print("="*70)
-    
-    formatter.print_general_answer(
-        question="What's the capital of Germany?",
-        answer="The capital of Germany is **Berlin**. It's also the largest city with about 3.7 million people."
-    )
-    
-    # Example 4: Simple formatter
-    print("\n" + "="*70)
-    print("EXAMPLE 4: Simple Formatter (Less Visual Noise)")
+    print("EXAMPLE 2: Simple Formatter (Less Visual Noise)")
     print("="*70)
     
     simple = SimpleFormatter()
