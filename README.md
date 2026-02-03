@@ -2,8 +2,7 @@
 
 **German Tutor** started as an AI-powered German language learning assistant that helps users improve their German vocabulary, sentence structure, and grammar.
 
-Now it is a **multi-lingual** language learning assistant that can also be used as a general assistant.
-It uses speech recognition, large language models (LLMs), and text-to-speech (TTS) to provide corrections and advice.
+Now it is a **multi-lingual** language learning assistant that can also be used as a general assistant. It uses **speech recognition, large language models (LLMs), text-to-speech (TTS), and RAG (retrieval-augmented generation)** to provide corrections, explanations, and up-to-date answers.
 
 ---
 
