@@ -9,31 +9,45 @@ It uses speech recognition, large language models (LLMs), and text-to-speech (TT
 
 ## Examples
 ### 1. Speaking German
-![alt text](imgs/WindowsTerminal_NAeRMmp7tx.png)
+![Speaking German](imgs/ex-1.png)
 
 ### 2. Asking a question in **German**
-![alt text](imgs/WindowsTerminal_7se1GpjcKm.png)
+![Asking a question in **German**](imgs/ex-2.png)
 
 ### 3. Asking a question in **English**
-![alt text](imgs/WindowsTerminal_kpwIo2Sma7.png)
+![Asking a question in **English**](imgs/ex-3.png)
 
 ### 4. Session termination (with end phrase)
-![alt text](imgs/WindowsTerminal_USzrJiQZuK.png)
+![Session termination (with end phrase)](imgs/ex-4.png)
+---
 
 ## **Latest Model: `German Tutor V3`**
 
-The German Tutor can now work with any language and answer any question, including non-language-learning related questions.
+German Tutor V3 can now handle **any language** and answer **general questions**, not just language-learning queries.
 
-The source code is now more professional, modular, and organized.
+**Key updates:**
 
-To change any option, including language, modify the `config.yaml` file.
+- **RAG integration** for up-to-date answers using live web search.
+- **Modular and organized codebase** for easier maintenance and customization.
+- All options, including language settings, can be modified in the `config.yaml` file.
 
-- Uses `faster-whisper` instead of the `sound_recognition` library for faster and more accurate results, with more options for model size.
-- Uses `mpv` with `edge-tts` for faster real-time TTS instead of creating and deleting temporary files (that option is still there, if users can't install `mpv`).
-- Uses `llama-3.3-70b-versatile` model from `groq` for a higher number of **free** daily API calls.
-- Improved `TUI`.
+**Major improvements:**
 
-→ Currently working on RAG implementation.
+- **Faster and more accurate STT**: now using `faster-whisper` with configurable model sizes (replacing `sound_recognition`).
+- **Real-time TTS**: `mpv` + `edge-tts` for faster synthesis without temporary files (previous method still available if needed).
+- **LLM upgrade**: `llama-3.3-70b-versatile` from Groq (default and recommended), offering more free daily API calls. Users can choose any other Groq LLM by changing the `model` in the `config.yaml` file.
+- **Improved TUI** for a smoother user experience.
+---
+## New RAG Feature
+
+German Tutor V3 now supports **RAG** (retrieval-augmented generation) to provide up-to-date answers.  
+Here’s a visual comparison:
+
+### 1. Without RAG
+![No RAG](imgs/no_rag.png)
+
+### 2. With RAG
+![With RAG](imgs/rag.png)
 
 ---
 
@@ -69,13 +83,9 @@ To change any option, including language, modify the `config.yaml` file.
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                     WEB SEARCH RAG                          │
-│                   [work in progress]                        │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │ Search API Options:                                  │   │
-│  │ - Tavily AI (best for RAG)                           │   │
-│  │ - SerpAPI (Google results)                           │   │
-│  │ - Brave Search API                                   │   │
-│  │ - DuckDuckGo (free, no API key)                      │   │
+│  │ - Tavily AI                                          │   │
 │  └───────────────────────────┬──────────────────────────┘   │
 │                              ↓                              │
 │  ┌──────────────────────────────────────────────────────┐   │
@@ -153,6 +163,7 @@ German-Tutor/
 - groq
 - pvporcupine
 - rich
+- tavily
 
 ### For the best performance, install:
 
@@ -162,6 +173,7 @@ German-Tutor/
 
 - groq → `GROQ_API_KEY`
 - pvporcupine → `PORCUPINE_ACCESS_KEY`
+- tavily -> `TAVILY_API_KEY`
 
 Add them to a `.env` file.
 
