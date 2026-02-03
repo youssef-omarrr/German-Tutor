@@ -7,7 +7,7 @@ Features:
 - A1-level friendly for language learning
 """
 
-def create_prompt_template(user_input):
+def create_prompt_template(user_input, RAG_answer):
     """
     Creates a dynamic prompt that produces natural, varied tutor responses.
     
@@ -150,8 +150,23 @@ Remember:
 - Be conversational and natural
 - ALWAYS RETURN RESPONSE IN MRKDOWN FORMAT!"""
 
+    # ========================================= #
+    # =======     3. RAG MESSAGE       ======== #
+    # ========================================= #
+    
+    rag_msg = f"""
+    The following information comes from live web search results.
+    - Use it ONLY if relevant
+    - Prefer it over your internal knowledge if there is a conflict
+    - If you use it, phrase naturally (e.g. "According to recent information...")
+    - If irrelevant, ignore it completely
 
+    Web context:
+        {RAG_answer}
+    """
+    
     return [
         {"role": "system", "content": system_msg},
-        {"role": "user", "content": user_msg}
+        {"role": "system", "content": rag_msg},
+        {"role": "user",   "content": user_msg}
     ]

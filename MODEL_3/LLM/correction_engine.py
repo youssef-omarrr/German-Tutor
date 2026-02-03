@@ -22,6 +22,7 @@ class GermanTutor:
         
     def response(self,
                 prompt: str,
+                RAG_answer: str,
                 use_simple_format: bool = False):
         
         """
@@ -29,6 +30,7 @@ class GermanTutor:
         
         Args:
             prompt: User's input text
+            RAG_answer: response of web search
             use_simple_format: If True, use minimal formatting
         
         Returns:
@@ -43,7 +45,7 @@ class GermanTutor:
             # Get LLM response
             response = self.client.chat.completions.create(
             model= self.model,
-            messages=create_prompt_template(prompt),
+            messages=create_prompt_template(prompt, RAG_answer),
             temperature = 0.9,
             max_tokens = 500
         )

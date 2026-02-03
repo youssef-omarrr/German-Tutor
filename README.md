@@ -131,10 +131,8 @@ German-Tutor/
 │   │   ├── response_formatter.py         
 │   │   └── prompt_templates.py 
 │   │
-│   ├── RAG/              
-│   │   ├── context_processor.py        
-│   │   ├── query_generator.py           
-│   │   └── search.py   
+│   ├── RAG/                       
+│   │   └── tavily_rag.py   
 │   │
 │   ├── experiments/ 
 │   └── config.yaml

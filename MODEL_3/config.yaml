@@ -48,3 +48,6 @@ LLM:
   use_simple_format: False
 
 RAG:
+  include_answer: "basic" # -> none, basic, advanced
+  search_depth: "basic" # -> advanced, basic, fast, ultra-fast
+  max_results: 3

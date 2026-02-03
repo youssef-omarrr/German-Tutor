@@ -1,6 +1,6 @@
 from MODEL_3.audio import stt, wake_word,tts
 from MODEL_3.LLM import correction_engine
-from MODEL_3.RAG import *
+from MODEL_3.RAG import tavily_rag
 
 import yaml
 from pathlib import Path
@@ -47,6 +47,10 @@ while True:
                         
                         # 3. rag
                         # --------
+                        response = tavily_rag.search_web(query=transcript,
+                                                        include_answer=config["RAG"]["include_answer"],
+                                                        search_depth=config["RAG"]["search_depth"],
+                                                        max_results=config["RAG"]["max_results"])
                         
                         # 4. llm
                         # -------
@@ -55,6 +59,7 @@ while True:
                         )
                         response = model.response(
                             prompt= transcript,
+                            RAG_answer=response,
                             use_simple_format= config["LLM"]["use_simple_format"]
                             )
                         
