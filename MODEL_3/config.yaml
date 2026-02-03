@@ -2,6 +2,9 @@ audio:
   wake_word: "jarvis"
   sensitivity: 0.9
   voice: "de-DE-KatjaNeural"  
+  rate: "+10%"  # Speaking rate
+  pitch: "+7Hz" # Pitch adjustment
+
   # German voices
   #  - "de-DE-KatjaNeural" (female, Germany)
   #  - "de-DE-ConradNeural" (male, Germany)
@@ -26,15 +29,12 @@ audio:
   #  - "es-ES-AlvaroNeural" (male, Spain)
   #  - "es-MX-DaliaNeural" (female, Mexico)
   #  - "es-MX-JorgeNeural" (male, Mexico)
-  rate: "+10%"  # Speaking rate
-  pitch: "+7Hz" # Pitch adjustment 
 
 faster_whisper:
-  model_size: "base"
-  # "tiny", "base", "small", "medium" or "large-v3"
-  device: "cpu"  # "cuda" or "cpu"
-  compute_type: "int8" # "float16" (GPU) or "int8" (CPU)
-  language: "de"  # "de" -> German, None -> for auto language detection mode
+  model_size: "large-v3"  # "tiny", "base", "small", "medium" or "large-v3"
+  device: "cpu"           # "cuda" or "cpu"
+  compute_type: "int8"    # "float16" (GPU) or "int8" (CPU)
+  language: "de"          # "de" -> German, None -> for auto language detection mode
   beam_size: 5
   vad_filter: True  # Voice activity detection
 
@@ -48,6 +48,7 @@ LLM:
   use_simple_format: False
 
 RAG:
-  include_answer: "basic" # -> none, basic, advanced
-  search_depth: "basic" # -> advanced, basic, fast, ultra-fast
+  use_RAG: True
+  include_answer: "basic" # -> "none", "basic", "advanced"
+  search_depth: "basic" # -> "advanced", "basic", "fast", "ultra-fast"
   max_results: 3

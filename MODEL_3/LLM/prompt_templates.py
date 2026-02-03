@@ -167,6 +167,9 @@ Remember:
     
     return [
         {"role": "system", "content": system_msg},
-        {"role": "system", "content": rag_msg},
+        {"role": "system", "content": rag_msg}, # -> add rag_answer if RAG is turned on
+        {"role": "user",   "content": user_msg}
+    ] if RAG_answer is not None else [
+        {"role": "system", "content": system_msg},
         {"role": "user",   "content": user_msg}
     ]

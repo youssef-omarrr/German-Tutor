@@ -21,3 +21,18 @@ def search_web(query:str,
     )
     
     return response
+
+# ========================================================================
+#                           USAGE EXAMPLES
+# ========================================================================
+
+if __name__ == "__main__":
+    # Example RAG responses
+    
+    response = search_web(
+        query= "who is the latest champions league winner",
+    )
+    
+    print(response)
+    print("\n\n\n")
+    print(response["answer"])

@@ -4,6 +4,7 @@ from MODEL_3.RAG import tavily_rag
 
 import yaml
 from pathlib import Path
+from rich.console import Console
 
 # Load config file
 CONFIG_PATH = Path("MODEL_3\config.yaml")
@@ -14,6 +15,15 @@ def load_config():
 
 config = load_config()
 
+console = Console()
+if config["RAG"]["use_RAG"]:
+    console.print("RAG is enabled.", style="bold magenta")
+    console.print("Using live web search to improve answer accuracy.", style="magenta")
+else:
+    console.print("RAG is currently disabled.", style="bold orange3")
+    console.print(
+        "Enable it by setting `RAG.use_RAG: true` in the config file.",
+        style="dim")
 
 # 1. wake word
 # -------------
@@ -47,7 +57,8 @@ while True:
                         
                         # 3. rag
                         # --------
-                        response = tavily_rag.search_web(query=transcript,
+                        if config["RAG"]["use_RAG"]:
+                            rag_response = tavily_rag.search_web(query=transcript,
                                                         include_answer=config["RAG"]["include_answer"],
                                                         search_depth=config["RAG"]["search_depth"],
                                                         max_results=config["RAG"]["max_results"])
@@ -57,9 +68,9 @@ while True:
                         model = correction_engine.GermanTutor(
                             model= config["LLM"]["model"]
                         )
-                        response = model.response(
+                        llm_response = model.response(
                             prompt= transcript,
-                            RAG_answer=response,
+                            RAG_answer=rag_response["answer"] if config["RAG"]["use_RAG"] else None, # -> send the answer only
                             use_simple_format= config["LLM"]["use_simple_format"]
                             )
                         
@@ -70,7 +81,7 @@ while True:
                                 rate = config["audio"]["rate"],
                                 pitch = config["audio"]["pitch"]
                                 )
-                        my_tts.speak(response)
+                        my_tts.speak(llm_response)
                     
             except KeyboardInterrupt:
                 print("\nInterrupted by user")
