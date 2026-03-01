@@ -1,4 +1,4 @@
-from groq import Groq
+from langchain_core  import chatGroq
 from dotenv import load_dotenv
 import os
 from .prompt_templates import create_prompt_template
@@ -18,7 +18,8 @@ class GermanTutor:
             - mixtral-8x7b-32768 (Good alternative)
         """
         self.model = model
-        self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        self.llm = ChatGroq(model = model, 
+                        temperature = 0.7)
         
     def response(self,
                 prompt: str,

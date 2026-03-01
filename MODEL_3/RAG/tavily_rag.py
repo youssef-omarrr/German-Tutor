@@ -1,26 +1,27 @@
 from tavily import TavilyClient
 from dotenv import load_dotenv
 import os
+from langchain_core .tools import tool
 
-# load .env file t0 get access keys
+# load .env file to get access keys
 load_dotenv()
 
+client = TavilyClient(os.getenv("TAVILY_API_KEY"))
 
-def search_web(query:str,
-            include_answer:str = "basic",
-            search_depth:str = "basic",
-            max_results:int = 3,):
-    
-    client = TavilyClient(os.getenv("TAVILY_API_KEY"))
-    
+@tool
+def search_web(query:str) -> str: 
+    """
+    Use this to search the internet for current events, facts, news, 
+    or any question that needs up-to-date information not available in a textbook.
+    """
     response = client.search(
         query=query,
-        include_answer=include_answer,
-        search_depth=search_depth,
-        max_results=max_results
+        include_answer="basic",
+        search_depth="basic",
+        max_results=3
     )
     
-    return response
+    return response["answer"]
 
 # ========================================================================
 #                           USAGE EXAMPLES
