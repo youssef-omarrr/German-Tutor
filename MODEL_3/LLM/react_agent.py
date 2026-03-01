@@ -1,7 +1,7 @@
 from langchain_core.messages import BaseMessage, SystemMessage
 from langgraph.graph.message import add_messages
 from typing import TypedDict, Annotated, Sequence
-from MODEL_3.LLM.prompt_templates import SYSTEM_PROMPT
+from .prompt_templates import SYSTEM_PROMPT
 
 # State
 # ------
