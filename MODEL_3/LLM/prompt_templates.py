@@ -7,20 +7,7 @@ Features:
 - A1-level friendly for language learning
 """
 
-def create_prompt_template(user_input, RAG_answer):
-    """
-    Creates a dynamic prompt that produces natural, varied tutor responses.
-    
-    Args:
-        user_input: User's sentence, question, or phrase
-        
-    Returns:
-        List of message dicts for Groq API
-    """
-    # ========================================= #
-    # ======     1. SYSTEM MESSAGE       ====== #
-    # ========================================= #
-    system_msg = """You are a warm, adaptive AI language tutor and helpful assistant.
+SYSTEM_PROMPT = """You are a warm, adaptive AI language tutor and helpful assistant.
 
 **CORE BEHAVIOR:**
 You have TWO modes that you switch between intelligently:
@@ -133,43 +120,4 @@ See? Same correction, completely different style each time.
     - Complex input → detailed response
     - Don't over-explain simple things
     
-ALWAYS RETURN RESPONSE IN MRKDOWN FORMAT!"""
-    
-    
-
-    # ========================================= #
-    # =======     2. USER MESSAGE       ======= #
-    # ========================================= #
-
-    user_msg = f"""Student input: {user_input}
-
-Remember:
-- If this is about learning a language → be a tutor (explain in English)
-- If this is a general question → just answer it naturally
-- Vary your response style - don't use templates
-- Be conversational and natural
-- ALWAYS RETURN RESPONSE IN MRKDOWN FORMAT!"""
-
-    # ========================================= #
-    # =======     3. RAG MESSAGE       ======== #
-    # ========================================= #
-    
-    rag_msg = f"""
-    The following information comes from live web search results.
-    - Use it ONLY if relevant
-    - Prefer it over your internal knowledge if there is a conflict
-    - If you use it, phrase naturally (e.g. "According to recent information...")
-    - If irrelevant, ignore it completely
-
-    Web context:
-        {RAG_answer}
-    """
-    
-    return [
-        {"role": "system", "content": system_msg},
-        {"role": "system", "content": rag_msg}, # -> add rag_answer if RAG is turned on
-        {"role": "user",   "content": user_msg}
-    ] if RAG_answer is not None else [
-        {"role": "system", "content": system_msg},
-        {"role": "user",   "content": user_msg}
-    ]
+ALWAYS RETURN RESPONSE IN MARKDOWN FORMAT!"""

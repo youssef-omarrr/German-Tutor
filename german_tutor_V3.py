@@ -1,127 +1,79 @@
-from MODEL_3.audio import stt, wake_word,tts
-from MODEL_3.LLM import correction_engine
-from MODEL_3.RAG import tavily_rag
+from MODEL_3.audio import stt, wake_word, tts
+from MODEL_3.graph import tutor_graph, config
+from langchain_core.messages import HumanMessage
 
 import yaml
 from pathlib import Path
 from rich.console import Console
 
-# Load config file
-CONFIG_PATH = Path("MODEL_3\config.yaml")
-
-def load_config():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-config = load_config()
-
 console = Console()
-if config["RAG"]["use_RAG"]:
-    console.print("RAG is enabled.", style="bold magenta")
-    console.print("Using live web search to improve answer accuracy.", style="magenta")
-else:
-    console.print("RAG is currently disabled.", style="bold orange3")
-    console.print(
-        "Enable it by setting `RAG.use_RAG: true` in the config file.",
-        style="dim")
+console.print("German Tutor started.", style="bold magenta")
+console.print("Mode: Text" if config["toggle_text_mode"] else "Mode: Audio", style="magenta")
 
-# 1. wake word
-# -------------
-while True:
-    if not config["toggle_text_mode"]:
-        detector = wake_word.WakeWordDetector(
-                    keyword = config["audio"]["wake_word"],
-                    sensitivity = config["audio"]["sensitivity"]
-                )
+# TTS (shared across modes) 
+# ----------------------------
+my_tts = tts.EdgeTTS(
+    voice=config["audio"]["voice"],
+    rate=config["audio"]["rate"],
+    pitch=config["audio"]["pitch"]
+)
+
+# Text Mode 
+# -----------
+if config["toggle_text_mode"]:
+    while True:
         try:
-            if detector.wait_for_wake_word():
-                
-                # 2. sst
-                # -------
-                my_stt = stt.FasterWhisperSTT(
-                    model_size = config["faster_whisper"]["model_size"],
-                    device = config["faster_whisper"]["device"],
-                    compute_type = config["faster_whisper"]["compute_type"],
-                    language = config["faster_whisper"]["language"],
-                    beam_size = config["faster_whisper"]["beam_size"],
-                    vad_filter = config["faster_whisper"]["vad_filter"]
-                )
-                
-                try:                
-                    while True:
-                        transcript = my_stt.listen_and_transcribe()
-                        
-                        if transcript:
-                            if transcript == "__END_SESSION__":
-                                print("\nSession ended")
-                                break
-                            
-                            # 3. rag
-                            # --------
-                            if config["RAG"]["use_RAG"]:
-                                rag_response = tavily_rag.search_web(query=transcript,
-                                                            include_answer=config["RAG"]["include_answer"],
-                                                            search_depth=config["RAG"]["search_depth"],
-                                                            max_results=config["RAG"]["max_results"])
-                            
-                            # 4. llm
-                            # -------
-                            model = correction_engine.GermanTutor(
-                                model= config["LLM"]["model"]
-                            )
-                            llm_response = model.response(
-                                prompt= transcript,
-                                RAG_answer=rag_response["answer"] if config["RAG"]["use_RAG"] else None, # -> send the answer only
-                                use_simple_format= config["LLM"]["use_simple_format"]
-                                )
-                            
-                            # 5. tts
-                            # -------
-                            my_tts = tts.EdgeTTS(
-                                    voice=config["audio"]["voice"],
-                                    rate = config["audio"]["rate"],
-                                    pitch = config["audio"]["pitch"]
-                                    )
-                            my_tts.speak(llm_response)
-                        
-                except KeyboardInterrupt:
-                    print("\nInterrupted by user")
-                finally:
-                    my_stt.cleanup()
-                    
-        finally:
-            detector.cleanup()
-            
-    else:
-        # 1. user input
-        # -------------
-        print("Ask anything:")
-        transcript = input()
-        # 2. rag
-        # --------
-        if config["RAG"]["use_RAG"]:
-            rag_response = tavily_rag.search_web(query=transcript,
-                                        include_answer=config["RAG"]["include_answer"],
-                                        search_depth=config["RAG"]["search_depth"],
-                                        max_results=config["RAG"]["max_results"])
-        
-        # 3. llm
-        # -------
-        model = correction_engine.GermanTutor(
-            model= config["LLM"]["model"]
-        )
-        llm_response = model.response(
-            prompt= transcript,
-            RAG_answer=rag_response["answer"] if config["RAG"]["use_RAG"] else None, # -> send the answer only
-            use_simple_format= config["LLM"]["use_simple_format"]
-            )
-        
-        # 4. tts
-        # -------
-        my_tts = tts.EdgeTTS(
-                voice=config["audio"]["voice"],
-                rate = config["audio"]["rate"],
-                pitch = config["audio"]["pitch"]
-                )
-        my_tts.speak(llm_response)
+            print("\nAsk anything (Ctrl+C to quit):")
+            transcript = input()
+
+            if not transcript.strip():
+                continue
+
+            # call the graph
+            result = tutor_graph.invoke({"messages": [HumanMessage(content=transcript)]})
+            llm_response = result["messages"][-1].content
+
+            my_tts.speak(llm_response)
+
+        except KeyboardInterrupt:
+            print("\nGoodbye!")
+            break
+
+# Audio Mode 
+# ------------
+else:
+    detector = wake_word.WakeWordDetector(
+        keyword=config["audio"]["wake_word"],
+        sensitivity=config["audio"]["sensitivity"]
+    )
+    my_stt = stt.FasterWhisperSTT(
+        model_size=config["faster_whisper"]["model_size"],
+        device=config["faster_whisper"]["device"],
+        compute_type=config["faster_whisper"]["compute_type"],
+        language=config["faster_whisper"]["language"],
+        beam_size=config["faster_whisper"]["beam_size"],
+        vad_filter=config["faster_whisper"]["vad_filter"]
+    )
+    try:
+        while True:
+            detector.wait_for_wake_word()
+            transcript = my_stt.listen_and_transcribe()
+
+            if not transcript:
+                continue
+            if transcript == "__END_SESSION__":
+                print("\nSession ended")
+                break
+
+            # call the graph
+            result = tutor_graph.invoke({"messages": [HumanMessage(content=transcript)]})
+            llm_response = result["messages"][-1].content
+
+            my_tts.speak(llm_response)
+
+    except KeyboardInterrupt:
+        print("\nInterrupted by user")
+    finally:
+        my_stt.cleanup()
+        detector.cleanup()
 
