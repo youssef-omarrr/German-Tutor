@@ -6,13 +6,16 @@ from langchain_core.messages import HumanMessage
 import yaml
 from pathlib import Path
 from rich.console import Console
+import threading
 
 console = Console()
 console.print("German Tutor started.", style="bold magenta")
 console.print("Mode: Text" if config["toggle_text_mode"] else "Mode: Audio", style="magenta")
 
 # Graph session config (gives the checkpointer a thread to store history in)
-graph_config = {"configurable": {"thread_id": "main_session"}}
+graph_config = {
+    "configurable": {"thread_id": "main_session"}
+    }
 
 # TTS (shared across modes) 
 # ----------------------------
@@ -31,7 +34,8 @@ formatter = SimpleFormatter() if config["LLM"]["use_simple_format"] else Respons
 if config["toggle_text_mode"]:
     while True:
         try:
-            print("\nAsk anything (Ctrl+C to quit):")
+            my_tts.stop()  # interrupt TTS if still speaking
+            console.print("\n> You: ", style="bold cyan", end="")
             transcript = input()
 
             if not transcript.strip():
@@ -40,14 +44,15 @@ if config["toggle_text_mode"]:
             # Show thinking indicator
             with formatter.console.status("[bold magenta]🤔 Thinking...[/bold magenta]", spinner="dots"):
                 # call the graph
-                result = tutor_graph.invoke({"messages": [HumanMessage(content=transcript)]}, config=graph_config)
+                result = tutor_graph.invoke({"messages": [HumanMessage(content=transcript)]}, 
+                                            config=graph_config)
                 llm_response = result["messages"][-1].content
 
             # Format and print
             clean_response = formatter.format_and_print(llm_response, user_input=transcript)
             
-            # Speak the response
-            my_tts.speak(llm_response)
+            # Speak the response (non-blocking — user can interrupt by typing)
+            threading.Thread(target=my_tts.speak, args=(llm_response,), daemon=True).start()
 
         except KeyboardInterrupt:
             print("\nGoodbye!")
@@ -70,6 +75,7 @@ else:
     )
     try:
         while True:
+            my_tts.stop()  # interrupt TTS if still speaking
             detector.wait_for_wake_word()
             transcript = my_stt.listen_and_transcribe()
 
@@ -82,14 +88,15 @@ else:
             # Show thinking indicator
             with formatter.console.status("[bold magenta]🤔 Thinking...[/bold magenta]", spinner="dots"):
                 # call the graph
-                result = tutor_graph.invoke({"messages": [HumanMessage(content=transcript)]}, config=graph_config)
+                result = tutor_graph.invoke({"messages": [HumanMessage(content=transcript)]}, 
+                                            config=graph_config)
                 llm_response = result["messages"][-1].content
 
             # Format and print
             clean_response = formatter.format_and_print(llm_response, user_input=transcript)
             
-            # Speak the response
-            my_tts.speak(llm_response)
+            # Speak the response (non-blocking — wake word can interrupt)
+            threading.Thread(target=my_tts.speak, args=(llm_response,), daemon=True).start()
 
     except KeyboardInterrupt:
         print("\nInterrupted by user")

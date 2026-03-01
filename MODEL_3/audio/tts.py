@@ -5,11 +5,17 @@ Fast, free, high-quality German voices
 
 import edge_tts
 import asyncio
+import threading
+import sys
 from typing import Optional
 from rich.console import Console
 import tempfile
 import os
 import subprocess
+
+# Fix SSL/ProactorEventLoop errors on Windows (Python 3.10)
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 class EdgeTTS:
@@ -41,6 +47,8 @@ class EdgeTTS:
         self.rate = rate
         self.pitch = pitch
         self.console = Console()
+        self._process: Optional[subprocess.Popen] = None
+        self._speak_thread: Optional[threading.Thread] = None
     
     async def _stream_speak(self, text: str):
         """
@@ -57,15 +65,33 @@ class EdgeTTS:
         # '--no-cache' and '--untied-lirc-interface' help with instant playback
         mpv_command = ["mpv", "--no-cache", "--no-terminal", "--", "-"]
         process = subprocess.Popen(mpv_command, stdin=subprocess.PIPE)
+        self._process = process
+        stream = communicate.stream()
 
         try:
-            async for chunk in communicate.stream():
+            async for chunk in stream:
                 if chunk["type"] == "audio":
-                    process.stdin.write(chunk["data"])
+                    if process.poll() is not None:
+                        break  # process was killed, stop streaming
+                    try:
+                        process.stdin.write(chunk["data"])
+                    except BrokenPipeError:
+                        break  # mpv was terminated, stop quietly
         finally:
+            await stream.aclose()  # cleanly close aiohttp connection
             if process.stdin:
-                process.stdin.close()
+                try:
+                    process.stdin.close()
+                except Exception:
+                    pass
             process.wait()
+            self._process = None
+
+    def stop(self):
+        """Interrupt TTS playback immediately."""
+        if self._process and self._process.poll() is None:
+            self._process.terminate()
+            self._process = None
 
     def speak(self, text: str):
         """
@@ -83,17 +109,18 @@ class EdgeTTS:
             except Exception as e:
                 self.console.print(f"[yellow]Streaming failed: {e}. Falling back to temp file method...[/]")
             
-            # Fallback: use temp file method
+            # Fallback: synthesize to bytes, write temp file, play with mpv
             try:
+                audio_data = asyncio.run(self._synthesize(text))
+                if not audio_data:
+                    self.console.print("[red]TTS synthesis returned no audio.[/]")
+                    return
+
                 with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
                     tmp.write(audio_data)
                     tmp_path = tmp.name
-                
-                # Play audio
-                audio = AudioSegment.from_mp3(tmp_path)
-                play(audio)
-                
-                # Cleanup
+
+                subprocess.run(["mpv", "--no-terminal", tmp_path], check=True)
                 os.unlink(tmp_path)
             except Exception as e:
                 self.console.print(f"[red]Playback error: {e}[/]")
