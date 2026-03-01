@@ -22,12 +22,12 @@ Now it is a **multi-lingual** language learning assistant that can also be used 
 
 ## **Latest Model: `German Tutor V3.1`**
 
-German Tutor V3.1 is rebuilt around a **LangGraph multiagent ReAct pipeline** with full **session memory**.
+German Tutor V3.1 is rebuilt around a **LangGraph ReAct pipeline** with full **session memory**.
 
 **V3.1 updates:**
 
 - **LangGraph ReAct pipeline**: the LLM now runs as a proper ReAct agent, it reasons, decides whether to call a tool, receives the result, and loops until it's ready to respond.
-- **Multiagent architecture**: separated into a `react_agent` node (LLM reasoning) and a `retriever_agent` node (tool execution), connected via LangGraph's conditional edges.
+- **ReAct pipeline**: separated into a `react_agent` node (LLM reasoning) and a `retriever_agent` node (tool execution), connected via LangGraph's conditional edges.
 - **Session memory**: conversation history is persisted across turns using LangGraph's `MemorySaver` checkpointer, the model remembers everything said earlier in the session.
 - **TTS interruption**: TTS now runs in a background thread and can be interrupted mid-speech by pressing the enter key twice (text mode) or saying the wake word (audio mode).
 
