@@ -34,7 +34,7 @@ config = load_config()
 tools = [search_web, search_local_books]
 tools_dict = {our_tool.name: our_tool for our_tool in tools} # Creating a dictionary of our tools
 llm = ChatGroq(model=config["LLM"]["model"],
-            temperature=0.7)
+            temperature=config["LLM"]["temperature"])
 llm_with_tools = llm.bind_tools(tools)
 
 # ReAct agent

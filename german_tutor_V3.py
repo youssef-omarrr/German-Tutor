@@ -8,6 +8,8 @@ from pathlib import Path
 from rich.console import Console
 import threading
 
+print("=================================================\n\n\n")
+
 console = Console()
 console.print("German Tutor started.", style="bold magenta")
 console.print("Mode: Text" if config["toggle_text_mode"] else "Mode: Audio", style="magenta")
@@ -34,9 +36,9 @@ formatter = SimpleFormatter() if config["LLM"]["use_simple_format"] else Respons
 if config["toggle_text_mode"]:
     while True:
         try:
-            my_tts.stop()  # interrupt TTS if still speaking
             console.print("\n> You: ", style="bold cyan", end="")
             transcript = input()
+            my_tts.stop()  # interrupt TTS immediately on any Enter press
 
             if not transcript.strip():
                 continue
@@ -51,11 +53,11 @@ if config["toggle_text_mode"]:
             # Format and print
             clean_response = formatter.format_and_print(llm_response, user_input=transcript)
             
-            # Speak the response (non-blocking — user can interrupt by typing)
+            # Speak the response (non-blocking, user can interrupt by typing)
             threading.Thread(target=my_tts.speak, args=(llm_response,), daemon=True).start()
 
         except KeyboardInterrupt:
-            print("\nGoodbye!")
+            console.print("\nGoodbye!", style="bold red")
             break
 
 # Audio Mode 
@@ -73,10 +75,21 @@ else:
         beam_size=config["faster_whisper"]["beam_size"],
         vad_filter=config["faster_whisper"]["vad_filter"]
     )
+    stop_event = threading.Event()
+
+    def enter_to_stop():
+        while not stop_event.is_set():
+            input()
+            my_tts.stop()
+
+    enter_thread = threading.Thread(target=enter_to_stop, daemon=True)
+    enter_thread.start()
+
     try:
+        console.print("\n[dim]Say '[bold]jarvis[/bold]' to start the session... (or press [bold]Enter[/bold] to stop TTS anytime)[/dim]")
+        detector.wait_for_wake_word()
+        
         while True:
-            my_tts.stop()  # interrupt TTS if still speaking
-            detector.wait_for_wake_word()
             transcript = my_stt.listen_and_transcribe()
 
             if not transcript:
@@ -84,6 +97,8 @@ else:
             if transcript == "__END_SESSION__":
                 print("\nSession ended")
                 break
+
+            my_tts.stop()  # interrupt TTS if still speaking from previous answer
 
             # Show thinking indicator
             with formatter.console.status("[bold magenta]🤔 Thinking...[/bold magenta]", spinner="dots"):
@@ -99,8 +114,13 @@ else:
             threading.Thread(target=my_tts.speak, args=(llm_response,), daemon=True).start()
 
     except KeyboardInterrupt:
+        stop_event.set()
+        my_tts.stop()
         print("\nInterrupted by user")
+        console.print("\nGoodbye!", style="bold red")
     finally:
+        stop_event.set()
+        my_tts.stop()
         my_stt.cleanup()
         detector.cleanup()
 

@@ -1,4 +1,4 @@
-toggle_text_mode: True # text or audio modes
+toggle_text_mode: 1 # text or audio modes
 audio:
   wake_word: "jarvis"
   sensitivity: 0.9
@@ -41,15 +41,10 @@ faster_whisper:
 
 LLM:
   model: "openai/gpt-oss-120b"
+  temperature: 0.2
   # other options for model:
   #  - llama-3.3-70b-versatile (Best for German)
   #  - llama-3.1-8b-instant (Faster, less accurate)
   #  - mixtral-8x7b-32768 (Good alternative)
   #  - openai/gpt-oss-120b
   use_simple_format: False
-
-RAG:
-  use_RAG: True
-  include_answer: "basic" # -> "none", "basic", "advanced"
-  search_depth: "basic" # -> "advanced", "basic", "fast", "ultra-fast"
-  max_results: 3

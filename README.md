@@ -24,12 +24,16 @@ Now it is a **multi-lingual** language learning assistant that can also be used 
 
 German Tutor V3.1 is rebuilt around a **LangGraph ReAct pipeline** with full **session memory**.
 
+### Memory example
+![memory](imgs/memory.png)
+
 **V3.1 updates:**
 
+- **Text mode**: the assistant can now be used entirely from the terminal, no microphone, no wake word required. Toggle between text and audio mode with `toggle_text_mode` in `config.yaml`.
 - **LangGraph ReAct pipeline**: the LLM now runs as a proper ReAct agent, it reasons, decides whether to call a tool, receives the result, and loops until it's ready to respond.
 - **ReAct pipeline**: separated into a `react_agent` node (LLM reasoning) and a `retriever_agent` node (tool execution), connected via LangGraph's conditional edges.
 - **Session memory**: conversation history is persisted across turns using LangGraph's `MemorySaver` checkpointer, the model remembers everything said earlier in the session.
-- **TTS interruption**: TTS now runs in a background thread and can be interrupted mid-speech by pressing the enter key twice (text mode) or saying the wake word (audio mode).
+- **TTS interruption**: TTS now runs in a background thread and can be interrupted mid-speech by pressing the enter key (in both text and audio modes).
 
 ---
 
@@ -64,8 +68,11 @@ Here's a visual comparison of RAG vs no RAG:
 ### 1. Without RAG
 ![No RAG](imgs/no_rag.png)
 
-### 2. With RAG
-![With RAG](imgs/rag.png)
+### 2. With **online** RAG
+![With RAG](imgs/online_rag.png)
+
+### 3. With **offline** RAG
+![With RAG](imgs/offline_rag.png)
 
 ---
 
@@ -75,22 +82,30 @@ Here's a visual comparison of RAG vs no RAG:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     USER SPEAKS INPUT                       │
+│                       USER INPUT                            │
 │       (German, any other language, or any question)         │
-└─────────────────────────────┬───────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│               AUDIO CAPTURE (faster-whisper)                │
-│    - Wake word*: "Jarvis"                                   │
-│    - Record until silence                                   │
-└─────────────────────────────┬───────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│              SPEECH-TO-TEXT (Faster-Whisper)                │
-│     - Model*: tiny → large-v3                               │
-│     - Language*: detected automatically or choose manually  │
-│     - Output: USER TEXT                                     │
-└─────────────────────────────┬───────────────────────────────┘
+└──────────────┬──────────────────────────┬───────────────────┘
+               │                          │
+    toggle_text_mode: False    toggle_text_mode: True
+               │                          │
+               ↓                          ↓
+┌──────────────────────────┐  ┌───────────────────────────────┐
+│   AUDIO MODE             │  │   TEXT MODE                   │
+│ - Wake word*: "Jarvis"   │  │ - Type directly in terminal   │
+│ - Record until silence   │  │ - Press Enter to send         │
+│ - Whisper STT            │  │ - Press Enter to stop TTS     │
+└──────────────┬───────────┘  └───────────────┬───────────────┘
+               │                              │
+               ↓                              │
+┌──────────────────────────┐                  │
+│  SPEECH-TO-TEXT          │                  │
+│  (Faster-Whisper)        │                  │
+│  - Model*: tiny → large  │                  │
+│  - Language*: auto/manual│                  │
+│  - Output: USER TEXT     │                  │
+└──────────────┬───────────┘                  │
+               │                              │
+               └──────────────┬───────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────────┐
 │              LANGGRAPH ReAct PIPELINE (with session memory)         │
@@ -172,10 +187,14 @@ German-Tutor/
 - groq
 - langchain-groq
 - langgraph
-- pvporcupine
 - rich
 - tavily
 - chromadb
+
+### Only required for audio mode:
+
+- pvporcupine
+- pyaudio
 
 ### For the best performance, install:
 

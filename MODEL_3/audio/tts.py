@@ -101,29 +101,28 @@ class EdgeTTS:
         if not text:
             return
         
-        with self.console.status("[bold green]🔊 Speaking...[/]", spinner="material"):
-            # First try direct streaming with mpv
-            try:
-                asyncio.run(self._stream_speak(text))
-                return  # Success, exit function
-            except Exception as e:
-                self.console.print(f"[yellow]Streaming failed: {e}. Falling back to temp file method...[/]")
-            
-            # Fallback: synthesize to bytes, write temp file, play with mpv
-            try:
-                audio_data = asyncio.run(self._synthesize(text))
-                if not audio_data:
-                    self.console.print("[red]TTS synthesis returned no audio.[/]")
-                    return
+        # First try direct streaming with mpv
+        try:
+            asyncio.run(self._stream_speak(text))
+            return  # Success, exit function
+        except Exception as e:
+            self.console.print(f"[yellow]Streaming failed: {e}. Falling back to temp file method...[/]")
+        
+        # Fallback: synthesize to bytes, write temp file, play with mpv
+        try:
+            audio_data = asyncio.run(self._synthesize(text))
+            if not audio_data:
+                self.console.print("[red]TTS synthesis returned no audio.[/]")
+                return
 
-                with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
-                    tmp.write(audio_data)
-                    tmp_path = tmp.name
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+                tmp.write(audio_data)
+                tmp_path = tmp.name
 
-                subprocess.run(["mpv", "--no-terminal", tmp_path], check=True)
-                os.unlink(tmp_path)
-            except Exception as e:
-                self.console.print(f"[red]Playback error: {e}[/]")
+            subprocess.run(["mpv", "--no-terminal", tmp_path], check=True)
+            os.unlink(tmp_path)
+        except Exception as e:
+            self.console.print(f"[red]Playback error: {e}[/]")
     
     # ======================================== #
     #    [OPTIONAL] PLAY FROM TEMP FILE        #
