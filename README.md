@@ -20,27 +20,46 @@ Now it is a **multi-lingual** language learning assistant that can also be used 
 ![Session termination (with end phrase)](imgs/ex-4.png)
 ---
 
-## **Latest Model: `German Tutor V3`**
+## **Latest Model: `German Tutor V3.1`**
 
-German Tutor V3 can now handle **any language** and answer **general questions**, not just language-learning queries.
+German Tutor V3.1 is rebuilt around a **LangGraph multiagent ReAct pipeline** with full **session memory**.
 
-**Key updates:**
+**V3.1 updates:**
+
+- **LangGraph ReAct pipeline**: the LLM now runs as a proper ReAct agent, it reasons, decides whether to call a tool, receives the result, and loops until it's ready to respond.
+- **Multiagent architecture**: separated into a `react_agent` node (LLM reasoning) and a `retriever_agent` node (tool execution), connected via LangGraph's conditional edges.
+- **Session memory**: conversation history is persisted across turns using LangGraph's `MemorySaver` checkpointer, the model remembers everything said earlier in the session.
+- **TTS interruption**: TTS now runs in a background thread and can be interrupted mid-speech by pressing the enter key twice (text mode) or saying the wake word (audio mode).
+
+---
+
+## **Previous: `German Tutor V3.0`**
+
+German Tutor V3 introduced multi-language support and general assistant capabilities.
+
+**V3.0 updates:**
 
 - **RAG integration** for up-to-date answers using live web search.
 - **Modular and organized codebase** for easier maintenance and customization.
 - All options, including language settings, can be modified in the `config.yaml` file.
 
-**Major improvements:**
+**V3.0 major improvements:**
 
 - **Faster and more accurate STT**: now using `faster-whisper` with configurable model sizes (replacing `sound_recognition`).
 - **Real-time TTS**: `mpv` + `edge-tts` for faster synthesis without temporary files (previous method still available if needed).
-- **LLM upgrade**: `llama-3.3-70b-versatile` from Groq (default and recommended), offering more free daily API calls. Users can choose any other Groq LLM by changing the `model` in the `config.yaml` file.
+- **LLM upgrade**: `openai/gpt-oss-120b` from Groq (default and recommended), offering more free daily API calls. Users can choose any other Groq LLM by changing the `model` in the `config.yaml` file.
 - **Improved TUI** for a smoother user experience.
 ---
 ## New RAG Feature
 
-German Tutor V3 now supports **RAG** (retrieval-augmented generation) to provide up-to-date answers.  
-Here’s a visual comparison:
+German Tutor V3 now supports **two RAG modes** (retrieval-augmented generation):
+
+- **Online RAG** (`tavily_rag.py`): live web search via Tavily AI, good for current events, up-to-date grammar references, and anything not in your local books.
+- **Offline RAG** (`offline_rag.py`): searches a local vector database built from your own books/documents, works without internet and is faster for static reference material.
+
+The ReAct agent decides which tool to use (or neither) based on the question.
+
+Here's a visual comparison of RAG vs no RAG:
 
 ### 1. Without RAG
 ![No RAG](imgs/no_rag.png)
@@ -73,43 +92,31 @@ Here’s a visual comparison:
 │     - Output: USER TEXT                                     │
 └─────────────────────────────┬───────────────────────────────┘
                               ↓
-┌─────────────────────────────────────────────────────────────┐
-│                  QUERY / ANALYSIS GENERATION                │
-│    - Analyze user's sentence or question                    │
-│    - Generate query for grammar rules or general info       │
-│      Example: "German perfekt tense with sein or haben"     │
-└─────────────────────────────┬───────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                     WEB SEARCH RAG                          │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ Search API Options:                                  │   │
-│  │ - Tavily AI                                          │   │
-│  └───────────────────────────┬──────────────────────────┘   │
-│                              ↓                              │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ Retrieved Results:                                   │   │
-│  │ 1. Deutschlernerblog.de: "Perfekt with sein..."      │   │
-│  │ 2. German.net: "Motion verbs use sein in perfekt"    │   │
-│  │ 3. Grammar guide: Examples and rules                 │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────┬───────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                LLM PROCESSING WITH RAG CONTEXT              │
-│  Model*: llama-3.3-70b-versatile                            │
-│  Input:                                                     │
-│    - User: "Ich habe gestern ins Kino gegangen"             │
-│    - Retrieved web context (grammar, knowledge, guidance)   │
-│  Output:                                                    │
-│    - Correction / Answer                                    │
-│    - Explanation / Reasoning                                │
-│    - Alternative phrasing or suggestions                    │
-└─────────────────────────────┬───────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│              LANGGRAPH ReAct PIPELINE (with session memory)         │
+│                                                                     │
+│   ┌─────────────────────────────────────────────────────────────┐   │
+│   │  react_agent node (LLM)                                     │   │
+│   │   - Receives full conversation history (MemorySaver)        │   │
+│   │   - Reasons about the input                                 │   │
+│   │   - Decides: answer directly OR call a tool                 │   │
+│   └───────────────────┬─────────────────┬───────────────────────┘   │
+│            tool call? │                 │ no → final answer         │
+│                       ↓                 ↓                           │
+│   ┌───────────────────────────┐    ┌─────────────────────────────┐  │
+│   │  retriever_agent node     │    │  END → response to user     │  │
+│   │  Tool options:            │    └─────────────────────────────┘  │
+│   │  - Tavily web search      │                                     │
+│   │  - Offline book search    │                                     │
+│   └──────────┬────────────────┘                                     │
+│              │ tool result loops back to react_agent                │
+│              └──────────────────────────────────────────────────────┘
+└─────────────────────────────┬───────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                TEXT-TO-SPEECH (Edge-TTS + mpv)              │
-│                  Synthesize spoken response                 │
+│   - Runs in background thread (non-blocking)                │
+│   - Interruptible mid-speech                                │
 └─────────────────────────────┬───────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -128,23 +135,26 @@ German-Tutor/
 ├── german_tutor_V3.py            # main entry point
 │
 ├── MODEL_3/                       
+│   ├── graph.py                  # LangGraph pipeline (ReAct loop + memory)
+│   ├── config.yaml
+│   │
 │   ├── audio/              
 │   │   ├── wake_word.py        
 │   │   ├── audio_io.py  
-│   │   ├── sst.py  
+│   │   ├── stt.py  
 │   │   ├── tts.py           
 │   │   └── end_phrase.py      
 │   │
 │   ├── LLM/              
-│   │   ├── correction_engine.py        
+│   │   ├── react_agent.py        # ReAct agent node + AgentState
 │   │   ├── response_formatter.py         
 │   │   └── prompt_templates.py 
 │   │
 │   ├── RAG/                       
-│   │   └── tavily_rag.py   
+│   │   ├── tavily_rag.py         # live web search tool
+│   │   └── offline_rag.py        # local book search tool
 │   │
-│   ├── experiments/ 
-│   └── config.yaml
+│   └── experiments/ 
 │
 ├── README.md                 
 │
@@ -160,9 +170,12 @@ German-Tutor/
 - faster-whisper
 - edge-tts
 - groq
+- langchain-groq
+- langgraph
 - pvporcupine
 - rich
 - tavily
+- chromadb
 
 ### For the best performance, install:
 
